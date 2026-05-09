@@ -1,13 +1,14 @@
-package com.project.catalogue.project_service;
+package com.project.catalogue.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ProjectServiceApplicationTests {
+class UserServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
 	}
 
 }
+

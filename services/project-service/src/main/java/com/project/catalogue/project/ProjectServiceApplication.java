@@ -1,13 +1,14 @@
-package com.project.catalogue.user_service;
+package com.project.catalogue.project;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class UserServiceApplication {
+public class ProjectServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(UserServiceApplication.class, args);
+		SpringApplication.run(ProjectServiceApplication.class, args);
 	}
 
 }
+
