@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 @Builder
 public class ProjectResponse {
 
-    private String id;
+    private Long id;
     private Long userId;
     private String name;
+    private String location;
     private LocalDateTime createdAt;
 }
-

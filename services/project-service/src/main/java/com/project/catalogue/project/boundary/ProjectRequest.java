@@ -12,12 +12,10 @@ import lombok.NoArgsConstructor;
 public class ProjectRequest {
 
     @NotBlank
-    @Size(max = 200)
-    private String id;
-
-
-    @NotBlank
     @Size(max = 120)
     private String name;
-}
 
+    @NotBlank
+    @Size(max = 500)
+    private String location;
+}

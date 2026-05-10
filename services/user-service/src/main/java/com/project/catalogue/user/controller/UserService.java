@@ -2,11 +2,13 @@ package com.project.catalogue.user.controller;
 
 import com.project.catalogue.user.boundary.UserRequest;
 import com.project.catalogue.user.boundary.UserResponse;
-import com.project.catalogue.user.domain.User;
-import com.project.catalogue.user.domain.UserAlreadyExistsException;
-import com.project.catalogue.user.domain.UserNotFoundException;
-import com.project.catalogue.user.domain.UserRepository;
+import com.project.catalogue.user.domain.exception.UserAlreadyExistsException;
+import com.project.catalogue.user.domain.exception.UserNotFoundException;
+import com.project.catalogue.user.domain.model.User;
+import com.project.catalogue.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -51,11 +53,15 @@ public class UserService {
         return toResponse(repository.save(user));
     }
 
-    public void deleteUser(Long id){
-        if(!repository.existsById(id)){
-            throw new UserNotFoundException(id);
-        }
+    public String deleteUser(Long id){
+        User user = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
         repository.deleteById(id);
+        return "User %s %s (%s) has been successfully deleted.".formatted(user.getFirstName(), user.getLastName(), user.getEmail());
+    }
+
+    public Page<UserResponse> listUsers(int page, int size) {
+        return repository.findAll(PageRequest.of(page, size)).map(this::toResponse);
     }
 
     private UserResponse toResponse(User user) {

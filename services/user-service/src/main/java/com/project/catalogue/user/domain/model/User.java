@@ -1,4 +1,4 @@
-package com.project.catalogue.user.domain;
+package com.project.catalogue.user.domain.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -39,3 +39,4 @@ public class User {
     @Column
     private LocalDateTime updatedAt;
 }
+
