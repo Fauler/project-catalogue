@@ -5,6 +5,7 @@ spring:
     name: user-service
   security:
     user:
+      name: user
       password: my-user-secret
   datasource:
     url: jdbc:h2:file:./data/user-service;AUTO_SERVER=TRUE
@@ -18,3 +19,10 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
+logging:
+  level:
+    com.project.catalogue: DEBUG
+    org.springframework.security: INFO
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
