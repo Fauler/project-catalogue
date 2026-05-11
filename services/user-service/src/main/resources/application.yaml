@@ -8,7 +8,7 @@ spring:
       name: user
       password: my-user-secret
   datasource:
-    url: jdbc:h2:file:./data/user-service;AUTO_SERVER=TRUE
+    url: ${DB_URL:jdbc:h2:file:./data/user-service;AUTO_SERVER=TRUE}
     driver-class-name: org.h2.Driver
     username: sa
     password: ""

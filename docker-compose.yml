@@ -1,0 +1,46 @@
+services:
+  user-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/user-service/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      DB_URL: ${USER_SERVICE_DB_URL}
+      SPRING_SECURITY_USER_NAME: ${USER_SERVICE_USERNAME}
+      SPRING_SECURITY_USER_PASSWORD: ${USER_SERVICE_PASSWORD}
+    volumes:
+      - ./services/user-service/data:/data
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - catalogue-network
+
+  project-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/project-service/Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      DB_URL: ${PROJECT_SERVICE_DB_URL}
+      USER_SERVICE_URL: ${USER_SERVICE_URL}
+      SPRING_SECURITY_USER_PASSWORD: ${PROJECT_SERVICE_PASSWORD}
+    volumes:
+      - ./services/project-service/data:/data
+    restart: always
+    depends_on:
+      user-service:
+        condition: service_healthy
+    networks:
+      - catalogue-network
+
+networks:
+  catalogue-network:
+    driver: bridge
+
