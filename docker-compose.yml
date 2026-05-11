@@ -7,13 +7,33 @@ services:
       - "8081:8081"
     environment:
       DB_URL: ${USER_SERVICE_DB_URL}
-      SPRING_SECURITY_USER_NAME: ${USER_SERVICE_USERNAME}
-      SPRING_SECURITY_USER_PASSWORD: ${USER_SERVICE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
     volumes:
       - ./services/user-service/data:/data
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - catalogue-network
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/auth-service/Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+      ALLOWED_CLIENT_IDS: ${ALLOWED_CLIENT_IDS}
+      ADMIN_CLIENT_IDS: ${ADMIN_CLIENT_IDS}
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,7 +50,7 @@ services:
     environment:
       DB_URL: ${PROJECT_SERVICE_DB_URL}
       USER_SERVICE_URL: ${USER_SERVICE_URL}
-      SPRING_SECURITY_USER_PASSWORD: ${PROJECT_SERVICE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
     volumes:
       - ./services/project-service/data:/data
     restart: always
@@ -43,4 +63,3 @@ services:
 networks:
   catalogue-network:
     driver: bridge
-

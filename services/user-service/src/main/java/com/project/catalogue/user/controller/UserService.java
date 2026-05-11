@@ -2,6 +2,7 @@ package com.project.catalogue.user.controller;
 
 import com.project.catalogue.user.boundary.UserRequest;
 import com.project.catalogue.user.boundary.UserResponse;
+import com.project.catalogue.user.boundary.UserUpdateRequest;
 import com.project.catalogue.user.domain.exception.UserAlreadyExistsException;
 import com.project.catalogue.user.domain.exception.UserNotFoundException;
 import com.project.catalogue.user.domain.model.User;
@@ -12,30 +13,33 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * Creates a user and validate unique email.
+     * Creates a user and validates unique email.
      */
+    @Transactional
     public UserResponse createUser(UserRequest request) {
-        log.info("Creating user with email {}", request.getEmail());
-        if (repository.findByEmail(request.getEmail()).isPresent()) {
-            log.warn("Duplicate email attempt: {}", request.getEmail());
-            throw new UserAlreadyExistsException(request.getEmail());
+        log.info("Creating user with email {}", request.email());
+        if (repository.findByEmail(request.email()).isPresent()) {
+            log.warn("Duplicate email attempt: {}", request.email());
+            throw new UserAlreadyExistsException(request.email());
         }
 
         User user = new User();
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
 
         User saved = repository.save(user);
         log.debug("User {} created with id {}", saved.getEmail(), saved.getId());
@@ -49,16 +53,26 @@ public class UserService {
         return toResponse(user);
     }
 
-    public UserResponse updateUser(Long id, UserRequest request) {
+    @Transactional
+    public UserResponse updateUser(Long id, UserUpdateRequest request) {
         log.info("Updating user {}", id);
         User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
-        user.setEmail(request.getEmail());
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
+
+        repository.findByEmail(request.email())
+                .filter(existing -> !existing.getId().equals(id))
+                .ifPresent(existing -> {
+                    log.warn("Email conflict on update: {} already taken by user {}", request.email(), existing.getId());
+                    throw new UserAlreadyExistsException(request.email());
+                });
+
+        user.setEmail(request.email());
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
         return toResponse(repository.save(user));
     }
 
+    @Transactional
     public String deleteUser(Long id) {
         log.info("Deleting user {}", id);
         User user = repository.findById(id)
@@ -70,7 +84,7 @@ public class UserService {
     }
 
     public Page<UserResponse> listUsers(int page, int size) {
-        log.debug("Listing users — page {}, size {}", page, size);
+        log.debug("Listing users - page {}, size {}", page, size);
         return repository.findAll(PageRequest.of(page, size)).map(this::toResponse);
     }
 

@@ -60,7 +60,7 @@ class ProjectServiceTest {
     @Test
     void addProjectToUser_success() {
         // given
-        when(repository.findByUserIdAndLocation(10L, request.getLocation())).thenReturn(Optional.empty());
+        when(repository.findByUserIdAndLocation(10L, request.location())).thenReturn(Optional.empty());
         when(repository.save(any())).thenReturn(project);
 
         // when
@@ -84,7 +84,7 @@ class ProjectServiceTest {
     @Test
     void addProjectToUser_duplicate_throws() {
         // given
-        when(repository.findByUserIdAndLocation(10L, request.getLocation())).thenReturn(Optional.of(project));
+        when(repository.findByUserIdAndLocation(10L, request.location())).thenReturn(Optional.of(project));
 
         // when / then
         assertThatThrownBy(() -> service.addProjectToUser(10L, request))

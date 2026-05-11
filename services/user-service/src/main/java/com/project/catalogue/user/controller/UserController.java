@@ -2,6 +2,7 @@ package com.project.catalogue.user.controller;
 
 import com.project.catalogue.user.boundary.UserRequest;
 import com.project.catalogue.user.boundary.UserResponse;
+import com.project.catalogue.user.boundary.UserUpdateRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -49,7 +50,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable @Positive Long id, @Valid @RequestBody UserRequest request) {
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable @Positive Long id, @Valid @RequestBody UserUpdateRequest request) {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, userService.updateUser(id, request)));
     }
 

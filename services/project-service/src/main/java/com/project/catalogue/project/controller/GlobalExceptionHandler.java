@@ -60,9 +60,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RestClientResponseException.class)
     public ResponseEntity<ApiResponse<Void>> handleRestClientError(RestClientResponseException ex) {
-        log.error("Upstream error calling user-service — status {}", ex.getStatusCode());
+        log.error("Upstream error calling user-service - status {}", ex.getStatusCode());
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body(ApiResponse.error(HttpStatus.SERVICE_UNAVAILABLE, "UPSTREAM_ERROR", "Could not reach user-service — please try again later."));
+                .body(ApiResponse.error(HttpStatus.SERVICE_UNAVAILABLE, "UPSTREAM_ERROR", "user-service unavailable"));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

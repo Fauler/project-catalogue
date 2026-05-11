@@ -2,6 +2,7 @@ package com.project.catalogue.user.controller;
 
 import com.project.catalogue.user.boundary.UserRequest;
 import com.project.catalogue.user.boundary.UserResponse;
+import com.project.catalogue.user.boundary.UserUpdateRequest;
 import com.project.catalogue.user.domain.exception.UserAlreadyExistsException;
 import com.project.catalogue.user.domain.exception.UserNotFoundException;
 import com.project.catalogue.user.domain.model.User;
@@ -55,7 +56,7 @@ class UserServiceTest {
     @Test
     void savesUserWithSuccess() {
         // given
-        when(repository.findByEmail(request.getEmail())).thenReturn(Optional.empty());
+        when(repository.findByEmail(request.email())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("hashed");
         when(repository.save(any())).thenReturn(user);
 
@@ -71,7 +72,7 @@ class UserServiceTest {
     @Test
     void rejectsCreation_whenEmailAlreadyRegistered() {
         // given
-        when(repository.findByEmail(request.getEmail())).thenReturn(Optional.of(user));
+        when(repository.findByEmail(request.email())).thenReturn(Optional.of(user));
 
         // when / then
         assertThatThrownBy(() -> service.createUser(request))
@@ -104,7 +105,7 @@ class UserServiceTest {
     @Test
     void updatesEmailAndName() {
         // given
-        UserRequest updateRequest = new UserRequest("new@example.com", "Jane", "Doe", "secret123");
+        UserUpdateRequest updateRequest = new UserUpdateRequest("new@example.com", "Jane", "Doe");
         when(repository.findById(1L)).thenReturn(Optional.of(user));
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -117,12 +118,44 @@ class UserServiceTest {
     }
 
     @Test
+    void updateUser_emailConflict_throws() {
+        // given
+        User otherUser = new User();
+        otherUser.setId(2L);
+        otherUser.setEmail("taken@example.com");
+
+        UserUpdateRequest updateRequest = new UserUpdateRequest("taken@example.com", "Jane", "Doe");
+        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(repository.findByEmail("taken@example.com")).thenReturn(Optional.of(otherUser));
+
+        // when / then
+        assertThatThrownBy(() -> service.updateUser(1L, updateRequest))
+                .isInstanceOf(UserAlreadyExistsException.class);
+    }
+
+    @Test
+    void updateUser_sameEmailSameUser_succeeds() {
+        // given
+        UserUpdateRequest updateRequest = new UserUpdateRequest("john@example.com", "Jane", "Doe");
+        when(repository.findById(1L)).thenReturn(Optional.of(user));
+        when(repository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+        when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        // when
+        UserResponse response = service.updateUser(1L, updateRequest);
+
+        // then
+        assertThat(response.getFirstName()).isEqualTo("Jane");
+    }
+
+    @Test
     void updateUser_notFound_throws() {
         // given
         when(repository.findById(99L)).thenReturn(Optional.empty());
+        UserUpdateRequest updateRequest = new UserUpdateRequest("new@example.com", "Jane", "Doe");
 
         // when / then
-        assertThatThrownBy(() -> service.updateUser(99L, request))
+        assertThatThrownBy(() -> service.updateUser(99L, updateRequest))
                 .isInstanceOf(UserNotFoundException.class);
     }
 

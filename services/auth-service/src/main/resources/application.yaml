@@ -1,0 +1,18 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: auth-service
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+auth:
+  allowed-client-ids: ${ALLOWED_CLIENT_IDS:client-user-01,client-admin-01}
+  admin-client-ids: ${ADMIN_CLIENT_IDS:client-admin-01}
+logging:
+  level:
+    com.project.catalogue: DEBUG
+    org.springframework.security: INFO
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

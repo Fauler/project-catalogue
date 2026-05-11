@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.catalogue.user.boundary.UserRequest;
 import com.project.catalogue.user.boundary.UserResponse;
 import com.project.catalogue.user.domain.exception.UserNotFoundException;
-import com.project.catalogue.user.infrastructure.UserDetailsServiceImpl;
+import com.project.catalogue.user.infrastructure.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,8 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -39,7 +37,7 @@ class UserControllerTest {
     private UserService userService;
 
     @MockitoBean
-    private UserDetailsServiceImpl userDetailsService;
+    private JwtService jwtService;
 
     private UserResponse sampleResponse() {
         return UserResponse.builder()
@@ -52,7 +50,7 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "USER")
     void returns201_withValidUserPayload() throws Exception {
         // given
         when(userService.createUser(any())).thenReturn(sampleResponse());
@@ -69,7 +67,7 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "USER")
     void returns400_whenEmailIsInvalid() throws Exception {
         // given
         UserRequest request = new UserRequest("not-an-email", "John", "Doe", "secret123");
@@ -84,7 +82,7 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "USER")
     void returns200_withUserData() throws Exception {
         // given
         when(userService.getUser(1L)).thenReturn(sampleResponse());
@@ -96,7 +94,7 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "USER")
     void returns404_whenUserDoesNotExist() throws Exception {
         // given
         when(userService.getUser(99L)).thenThrow(new UserNotFoundException(99L));
@@ -108,7 +106,7 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void returns200_onSuccessfulDelete() throws Exception {
         // given
         when(userService.deleteUser(1L)).thenReturn("User John Doe (john@example.com) has been successfully deleted.");

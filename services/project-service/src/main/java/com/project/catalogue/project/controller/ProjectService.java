@@ -13,10 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProjectService {
 
     private final ProjectRepository repository;
@@ -25,20 +27,21 @@ public class ProjectService {
     /**
      * Adds a project to a valid user
      */
+    @Transactional
     public ProjectResponse addProjectToUser(Long userId, ProjectRequest request) {
-        log.info("Adding project '{}' to user {}", request.getLocation(), userId);
+        log.info("Adding project '{}' to user {}", request.location(), userId);
         userValidator.validateUserExists(userId);
 
-        if (repository.findByUserIdAndLocation(userId, request.getLocation()).isPresent()) {
-            log.warn("Project already exists for user {} at location {}", userId, request.getLocation());
-            throw new ProjectAlreadyExistsException(request.getLocation());
+        if (repository.findByUserIdAndLocation(userId, request.location()).isPresent()) {
+            log.warn("Project already exists for user {} at location {}", userId, request.location());
+            throw new ProjectAlreadyExistsException(request.location());
         }
 
         Project project = new Project(
                 null,
                 userId,
-                request.getName(),
-                request.getLocation(),
+                request.name(),
+                request.location(),
                 null,
                 null
         );
@@ -49,13 +52,14 @@ public class ProjectService {
     }
 
     public Page<ProjectResponse> listProjectsByUser(Long userId, int page, int size) {
-        log.debug("Listing projects for user {} — page {}, size {}", userId, page, size);
+        log.debug("Listing projects for user {} - page {}, size {}", userId, page, size);
         userValidator.validateUserExists(userId);
         PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
         return repository.findByUserId(userId, pageable)
                 .map(this::toResponse);
     }
 
+    @Transactional
     public void removeProject(Long userId, Long projectId) {
         log.info("Removing project {} from user {}", projectId, userId);
         Project project = repository.findById(projectId)

@@ -3,9 +3,6 @@ server:
 spring:
   application:
     name: project-service
-  security:
-    user:
-      password: my-project-secret
   datasource:
     url: ${DB_URL:jdbc:h2:file:./data/project-service;AUTO_SERVER=TRUE}
     driver-class-name: org.h2.Driver
@@ -18,11 +15,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
+jwt:
+  secret: ${JWT_SECRET}
 clients:
   user-service:
     base-url: ${USER_SERVICE_URL:http://localhost:8081}
-    username: user
-    password: my-user-secret
 logging:
   level:
     com.project.catalogue: DEBUG
