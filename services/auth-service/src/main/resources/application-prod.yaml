@@ -1,0 +1,7 @@
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS}
+auth:
+  allowed-client-ids: ${ALLOWED_CLIENT_IDS}
+  admin-client-ids: ${ADMIN_CLIENT_IDS}
+

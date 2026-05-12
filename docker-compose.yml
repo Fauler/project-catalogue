@@ -6,8 +6,8 @@ services:
     ports:
       - "8081:8081"
     environment:
-      DB_URL: ${USER_SERVICE_DB_URL}
-      JWT_SECRET: ${JWT_SECRET}
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: ${USER_SERVICE_DB_URL:-jdbc:h2:file:/data/user-service;AUTO_SERVER=TRUE}
     volumes:
       - ./services/user-service/data:/data
     restart: always
@@ -27,10 +27,10 @@ services:
     ports:
       - "8083:8083"
     environment:
-      JWT_SECRET: ${JWT_SECRET}
+      SPRING_PROFILES_ACTIVE: dev
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
-      ALLOWED_CLIENT_IDS: ${ALLOWED_CLIENT_IDS}
-      ADMIN_CLIENT_IDS: ${ADMIN_CLIENT_IDS}
+      ALLOWED_CLIENT_IDS: ${ALLOWED_CLIENT_IDS:-client-user-01,client-admin-01}
+      ADMIN_CLIENT_IDS: ${ADMIN_CLIENT_IDS:-client-admin-01}
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
@@ -48,9 +48,9 @@ services:
     ports:
       - "8082:8082"
     environment:
-      DB_URL: ${PROJECT_SERVICE_DB_URL}
-      USER_SERVICE_URL: ${USER_SERVICE_URL}
-      JWT_SECRET: ${JWT_SECRET}
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: ${PROJECT_SERVICE_DB_URL:-jdbc:h2:file:/data/project-service;AUTO_SERVER=TRUE}
+      USER_SERVICE_URL: ${USER_SERVICE_URL:-http://user-service:8081}
     volumes:
       - ./services/project-service/data:/data
     restart: always

@@ -1,0 +1,7 @@
+jwt:
+  secret: ${JWT_SECRET:ZGV2LWF1dGgtand0LXNlY3JldC1mb3ItcHJvamVjdC1jYXRhbG9ndWUtMjAyNg==}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+auth:
+  allowed-client-ids: ${ALLOWED_CLIENT_IDS:client-user-01,client-admin-01}
+  admin-client-ids: ${ADMIN_CLIENT_IDS:client-admin-01}
+
