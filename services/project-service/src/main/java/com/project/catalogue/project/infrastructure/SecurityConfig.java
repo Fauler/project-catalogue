@@ -52,7 +52,7 @@ public class SecurityConfig {
                             ApiResponse.error(HttpStatus.FORBIDDEN, "FORBIDDEN", "Access denied")));
                 }))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/health", "/actuator/prometheus").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/**").hasAnyRole("USER", "ADMIN")

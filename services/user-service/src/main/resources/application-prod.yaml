@@ -1,6 +1,13 @@
+server:
+  shutdown: graceful
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   datasource:
     url: ${DB_URL}
 jwt:
   secret: ${JWT_SECRET}
-
+logging:
+  structured:
+    format:
+      console: logstash

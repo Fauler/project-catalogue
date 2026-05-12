@@ -18,7 +18,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/health", "/auth/token").permitAll()
+                .requestMatchers("/actuator/health", "/actuator/prometheus", "/auth/token").permitAll()
                 .anyRequest().denyAll());
         return http.build();
     }

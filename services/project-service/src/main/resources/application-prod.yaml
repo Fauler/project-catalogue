@@ -1,4 +1,8 @@
+server:
+  shutdown: graceful
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   datasource:
     url: ${DB_URL}
 jwt:
@@ -6,4 +10,7 @@ jwt:
 clients:
   user-service:
     base-url: ${USER_SERVICE_URL}
-
+logging:
+  structured:
+    format:
+      console: logstash

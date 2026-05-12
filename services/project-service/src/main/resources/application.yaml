@@ -20,10 +20,13 @@ jwt:
 clients:
   user-service:
     base-url: ${USER_SERVICE_URL:http://localhost:8081}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
 logging:
   level:
     com.project.catalogue: DEBUG
     org.springframework.security: INFO
     org.springframework.web: INFO
-  pattern:
-    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
