@@ -40,13 +40,7 @@ class UserControllerTest {
     private JwtService jwtService;
 
     private UserResponse sampleResponse() {
-        return UserResponse.builder()
-                .id(1L)
-                .email("john@example.com")
-                .firstName("John")
-                .lastName("Doe")
-                .createdAt(LocalDateTime.now())
-                .build();
+        return new UserResponse(1L, "john@example.com", "John", "Doe", LocalDateTime.now());
     }
 
     @Test
@@ -109,12 +103,12 @@ class UserControllerTest {
     @WithMockUser(roles = "ADMIN")
     void returns200_onSuccessfulDelete() throws Exception {
         // given
-        when(userService.deleteUser(1L)).thenReturn("User John Doe (john@example.com) has been successfully deleted.");
+        when(userService.deleteUser(1L)).thenReturn("Deleted user John Doe (john@example.com)");
 
         // when / then
         mockMvc.perform(delete("/api/v1/users/1").with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").value("User John Doe (john@example.com) has been successfully deleted."));
+                .andExpect(jsonPath("$.data").value("Deleted user John Doe (john@example.com)"));
     }
 
     @Test

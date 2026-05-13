@@ -1,6 +1,7 @@
 package com.project.catalogue.project.controller;
 
 import com.project.catalogue.project.boundary.ProjectResponse;
+import com.project.catalogue.project.infrastructure.JwtProperties;
 import com.project.catalogue.project.infrastructure.JwtService;
 import com.project.catalogue.project.infrastructure.SecurityConfig;
 import io.jsonwebtoken.Jwts;
@@ -15,7 +16,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.crypto.SecretKey;
@@ -56,9 +56,7 @@ class ProjectSecurityTest {
 
     @BeforeEach
     void setupJwtDelegate() {
-        JwtService real = new JwtService();
-        ReflectionTestUtils.setField(real, "secret", TEST_SECRET);
-        ReflectionTestUtils.invokeMethod(real, "init");
+        JwtService real = new JwtService(new JwtProperties(TEST_SECRET));
         lenient().when(jwtService.validateToken(any()))
                 .thenAnswer(inv -> real.validateToken(inv.getArgument(0)));
     }
@@ -75,11 +73,7 @@ class ProjectSecurityTest {
     }
 
     private ProjectResponse sampleProject() {
-        return ProjectResponse.builder()
-                .id(1L).userId(1L).name("My Project")
-                .location("github.com/user/repo")
-                .createdAt(LocalDateTime.now())
-                .build();
+        return new ProjectResponse(1L, 1L, "My Project", "github.com/user/repo", LocalDateTime.now());
     }
 
     // -- 401: no token --

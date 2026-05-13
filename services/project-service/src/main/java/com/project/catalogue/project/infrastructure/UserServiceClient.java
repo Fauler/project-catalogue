@@ -1,11 +1,11 @@
 package com.project.catalogue.project.infrastructure;
 
 import com.project.catalogue.project.domain.exception.ProjectUserNotFoundException;
-import com.project.catalogue.project.domain.repository.UserValidator;
-import jakarta.annotation.PostConstruct;
+import com.project.catalogue.project.domain.UserValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.ClientHttpRequestFactories;
+import org.springframework.boot.web.client.ClientHttpRequestFactorySettings;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
@@ -16,15 +16,16 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class UserServiceClient implements UserValidator {
 
-    @Value("${clients.user-service.base-url}")
-    private String userServiceBaseUrl;
+    private final RestClient restClient;
 
-    private RestClient restClient;
+    public UserServiceClient(UserServiceClientProperties properties) {
+        var requestFactory = ClientHttpRequestFactories.get(ClientHttpRequestFactorySettings.DEFAULTS
+                .withConnectTimeout(properties.connectTimeout())
+                .withReadTimeout(properties.readTimeout()));
 
-    @PostConstruct
-    void init() {
         this.restClient = RestClient.builder()
-                .baseUrl(userServiceBaseUrl)
+                .baseUrl(properties.baseUrl())
+                .requestFactory(requestFactory)
                 .build();
     }
 

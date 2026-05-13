@@ -1,9 +1,11 @@
 package com.project.catalogue.auth.controller;
 
+import com.project.catalogue.auth.infrastructure.AuthProperties;
 import com.project.catalogue.auth.infrastructure.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
@@ -20,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(AuthController.class)
 @Import(com.project.catalogue.auth.infrastructure.SecurityConfig.class)
+@EnableConfigurationProperties(AuthProperties.class)
 @TestPropertySource(properties = {
         "jwt.secret=dGVzdC1zZWNyZXQta2V5LWZvci11bml0LXRlc3Rz",
         "jwt.expiration-ms=3600000",

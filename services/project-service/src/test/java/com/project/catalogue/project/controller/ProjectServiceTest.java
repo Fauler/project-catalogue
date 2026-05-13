@@ -7,7 +7,7 @@ import com.project.catalogue.project.domain.exception.ProjectNotFoundException;
 import com.project.catalogue.project.domain.exception.ProjectUserNotFoundException;
 import com.project.catalogue.project.domain.model.Project;
 import com.project.catalogue.project.domain.repository.ProjectRepository;
-import com.project.catalogue.project.domain.repository.UserValidator;
+import com.project.catalogue.project.domain.UserValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,8 +67,8 @@ class ProjectServiceTest {
         ProjectResponse response = service.addProjectToUser(10L, request);
 
         // then
-        assertThat(response.getName()).isEqualTo("My Project");
-        assertThat(response.getUserId()).isEqualTo(10L);
+        assertThat(response.name()).isEqualTo("My Project");
+        assertThat(response.userId()).isEqualTo(10L);
     }
 
     @Test
@@ -102,7 +102,7 @@ class ProjectServiceTest {
 
         // then
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).getName()).isEqualTo("My Project");
+        assertThat(result.getContent().get(0).name()).isEqualTo("My Project");
     }
 
     @Test

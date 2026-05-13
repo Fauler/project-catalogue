@@ -1,20 +1,11 @@
 package com.project.catalogue.user.boundary;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class UserResponse {
-    private Long id;
-    private String email;
-    private String firstName;
-    private String lastName;
-    private LocalDateTime createdAt;
-}
+public record UserResponse(
+        Long id,
+        String email,
+        String firstName,
+        String lastName,
+        LocalDateTime createdAt
+) {}

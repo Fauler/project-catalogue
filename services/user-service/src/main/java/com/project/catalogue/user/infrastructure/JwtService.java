@@ -5,9 +5,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -16,14 +14,10 @@ import javax.crypto.SecretKey;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    private final SecretKey signingKey;
 
-    private SecretKey signingKey;
-
-    @PostConstruct
-    void init() {
-        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+    public JwtService(JwtProperties properties) {
+        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(properties.secret()));
         log.debug("JWT signing key initialized");
     }
 

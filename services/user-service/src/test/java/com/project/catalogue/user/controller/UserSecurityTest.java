@@ -1,6 +1,7 @@
 package com.project.catalogue.user.controller;
 
 import com.project.catalogue.user.boundary.UserResponse;
+import com.project.catalogue.user.infrastructure.JwtProperties;
 import com.project.catalogue.user.infrastructure.JwtService;
 import com.project.catalogue.user.infrastructure.SecurityConfig;
 import io.jsonwebtoken.Jwts;
@@ -14,7 +15,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.crypto.SecretKey;
@@ -55,9 +55,7 @@ class UserSecurityTest {
 
     @BeforeEach
     void setupJwtDelegate() {
-        JwtService real = new JwtService();
-        ReflectionTestUtils.setField(real, "secret", TEST_SECRET);
-        ReflectionTestUtils.invokeMethod(real, "init");
+        JwtService real = new JwtService(new JwtProperties(TEST_SECRET));
         lenient().when(jwtService.validateToken(any()))
                 .thenAnswer(inv -> real.validateToken(inv.getArgument(0)));
     }
@@ -74,11 +72,7 @@ class UserSecurityTest {
     }
 
     private UserResponse sampleUser() {
-        return UserResponse.builder()
-                .id(1L).email("john@example.com")
-                .firstName("John").lastName("Doe")
-                .createdAt(LocalDateTime.now())
-                .build();
+        return new UserResponse(1L, "john@example.com", "John", "Doe", LocalDateTime.now());
     }
 
     // -- 401: no token --

@@ -3,10 +3,7 @@ package com.project.catalogue.auth.infrastructure;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -16,19 +13,17 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    private final SecretKey signingKey;
+    private final long expirationMs;
 
-    @Getter
-    @Value("${jwt.expiration-ms}")
-    private long expirationMs;
-
-    private SecretKey signingKey;
-
-    @PostConstruct
-    void init() {
-        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+    public JwtService(JwtProperties properties) {
+        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(properties.secret()));
+        this.expirationMs = properties.expirationMs();
         log.debug("JWT signing key initialized");
+    }
+
+    public long getExpirationMs() {
+        return expirationMs;
     }
 
     public String generateToken(String clientId, String role) {

@@ -64,8 +64,8 @@ class UserServiceTest {
         UserResponse response = service.createUser(request);
 
         // then
-        assertThat(response.getEmail()).isEqualTo("john@example.com");
-        assertThat(response.getFirstName()).isEqualTo("John");
+        assertThat(response.email()).isEqualTo("john@example.com");
+        assertThat(response.firstName()).isEqualTo("John");
         verify(passwordEncoder).encode("secret123");
     }
 
@@ -88,8 +88,8 @@ class UserServiceTest {
         UserResponse response = service.getUser(1L);
 
         // then
-        assertThat(response.getId()).isEqualTo(1L);
-        assertThat(response.getEmail()).isEqualTo("john@example.com");
+        assertThat(response.id()).isEqualTo(1L);
+        assertThat(response.email()).isEqualTo("john@example.com");
     }
 
     @Test
@@ -113,8 +113,8 @@ class UserServiceTest {
         UserResponse response = service.updateUser(1L, updateRequest);
 
         // then
-        assertThat(response.getEmail()).isEqualTo("new@example.com");
-        assertThat(response.getFirstName()).isEqualTo("Jane");
+        assertThat(response.email()).isEqualTo("new@example.com");
+        assertThat(response.firstName()).isEqualTo("Jane");
     }
 
     @Test
@@ -145,7 +145,7 @@ class UserServiceTest {
         UserResponse response = service.updateUser(1L, updateRequest);
 
         // then
-        assertThat(response.getFirstName()).isEqualTo("Jane");
+        assertThat(response.firstName()).isEqualTo("Jane");
     }
 
     @Test

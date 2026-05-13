@@ -6,7 +6,7 @@ import com.project.catalogue.project.domain.exception.ProjectAlreadyExistsExcept
 import com.project.catalogue.project.domain.exception.ProjectNotFoundException;
 import com.project.catalogue.project.domain.model.Project;
 import com.project.catalogue.project.domain.repository.ProjectRepository;
-import com.project.catalogue.project.domain.repository.UserValidator;
+import com.project.catalogue.project.domain.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,9 +24,6 @@ public class ProjectService {
     private final ProjectRepository repository;
     private final UserValidator userValidator;
 
-    /**
-     * Adds a project to a valid user
-     */
     @Transactional
     public ProjectResponse addProjectToUser(Long userId, ProjectRequest request) {
         log.info("Adding project '{}' to user {}", request.location(), userId);
@@ -74,13 +71,13 @@ public class ProjectService {
     }
 
     private ProjectResponse toResponse(Project project) {
-        return ProjectResponse.builder()
-                .id(project.getId())
-                .userId(project.getUserId())
-                .name(project.getName())
-                .location(project.getLocation())
-                .createdAt(project.getCreatedAt())
-                .build();
+        return new ProjectResponse(
+                project.getId(),
+                project.getUserId(),
+                project.getName(),
+                project.getLocation(),
+                project.getCreatedAt()
+        );
     }
 
 }

@@ -24,9 +24,6 @@ public class UserService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Creates a user and validates unique email.
-     */
     @Transactional
     public UserResponse createUser(UserRequest request) {
         log.info("Creating user with email {}", request.email());
@@ -79,7 +76,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(id));
         repository.deleteById(id);
         log.debug("User {} ({}) deleted", id, user.getEmail());
-        return "User %s %s (%s) has been successfully deleted.".formatted(
+        return "Deleted user %s %s (%s)".formatted(
                 user.getFirstName(), user.getLastName(), user.getEmail());
     }
 
@@ -89,12 +86,12 @@ public class UserService {
     }
 
     private UserResponse toResponse(User user) {
-        return UserResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .createdAt(user.getCreatedAt())
-                .build();
+        return new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getCreatedAt()
+        );
     }
 }

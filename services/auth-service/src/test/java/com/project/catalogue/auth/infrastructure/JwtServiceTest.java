@@ -6,7 +6,6 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.crypto.SecretKey;
 
@@ -22,10 +21,7 @@ class JwtServiceTest {
 
     @BeforeEach
     void setUp() {
-        jwtService = new JwtService();
-        ReflectionTestUtils.setField(jwtService, "secret", TEST_SECRET);
-        ReflectionTestUtils.setField(jwtService, "expirationMs", EXPIRATION_MS);
-        ReflectionTestUtils.invokeMethod(jwtService, "init");
+        jwtService = new JwtService(new JwtProperties(TEST_SECRET, EXPIRATION_MS));
     }
 
     @Test

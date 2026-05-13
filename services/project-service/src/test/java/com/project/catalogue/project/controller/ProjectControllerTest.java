@@ -45,13 +45,7 @@ class ProjectControllerTest {
     private JwtService jwtService;
 
     private ProjectResponse sampleResponse() {
-        return ProjectResponse.builder()
-                .id(1L)
-                .userId(10L)
-                .name("My Project")
-                .location("github.com/user/repo")
-                .createdAt(LocalDateTime.now())
-                .build();
+        return new ProjectResponse(1L, 10L, "My Project", "github.com/user/repo", LocalDateTime.now());
     }
 
     @Test
