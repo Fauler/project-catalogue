@@ -1,3 +1,2 @@
 jwt:
   secret: ${JWT_SECRET:ZGV2LWF1dGgtand0LXNlY3JldC1mb3ItcHJvamVjdC1jYXRhbG9ndWUtMjAyNg==}
-

@@ -1,4 +1,40 @@
 services:
+  postgres-user:
+    image: postgres:17-alpine
+    ports:
+      - "20081:5432"
+    environment:
+      POSTGRES_DB: user_service
+      POSTGRES_USER: user_service
+      POSTGRES_PASSWORD: user_service
+    volumes:
+      - postgres-user-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_service -d user_service"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - catalogue-network
+
+  postgres-project:
+    image: postgres:17-alpine
+    ports:
+      - "20082:5432"
+    environment:
+      POSTGRES_DB: project_service
+      POSTGRES_USER: project_service
+      POSTGRES_PASSWORD: project_service
+    volumes:
+      - postgres-project-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U project_service -d project_service"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - catalogue-network
+
   user-service:
     build:
       context: .
@@ -8,10 +44,13 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev
       JWT_SECRET: ${JWT_SECRET:-ZGV2LWF1dGgtand0LXNlY3JldC1mb3ItcHJvamVjdC1jYXRhbG9ndWUtMjAyNg==}
-      DB_URL: ${USER_SERVICE_DB_URL:-jdbc:h2:file:/data/user-service;AUTO_SERVER=TRUE}
-    volumes:
-      - ./services/user-service/data:/data
+      DB_URL: jdbc:postgresql://postgres-user:5432/user_service
+      DB_USERNAME: user_service
+      DB_PASSWORD: user_service
     restart: always
+    depends_on:
+      postgres-user:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
       interval: 10s
@@ -52,16 +91,22 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: dev
       JWT_SECRET: ${JWT_SECRET:-ZGV2LWF1dGgtand0LXNlY3JldC1mb3ItcHJvamVjdC1jYXRhbG9ndWUtMjAyNg==}
-      DB_URL: ${PROJECT_SERVICE_DB_URL:-jdbc:h2:file:/data/project-service;AUTO_SERVER=TRUE}
+      DB_URL: jdbc:postgresql://postgres-project:5432/project_service
+      DB_USERNAME: project_service
+      DB_PASSWORD: project_service
       USER_SERVICE_URL: ${USER_SERVICE_URL:-http://user-service:8081}
-    volumes:
-      - ./services/project-service/data:/data
     restart: always
     depends_on:
+      postgres-project:
+        condition: service_healthy
       user-service:
         condition: service_healthy
     networks:
       - catalogue-network
+
+volumes:
+  postgres-user-data:
+  postgres-project-data:
 
 networks:
   catalogue-network:

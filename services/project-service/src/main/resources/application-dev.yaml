@@ -3,4 +3,3 @@ jwt:
 clients:
   user-service:
     base-url: ${USER_SERVICE_URL:http://localhost:8081}
-

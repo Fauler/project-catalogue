@@ -26,7 +26,8 @@ Each service uses a DDD/ECB layout:
 - Micrometer (Prometheus + OpenTelemetry tracing)
 - Lombok
 - jjwt
-- H2 (local dev), PostgreSQL (cluster)
+- PostgreSQL 17
+- Flyway (schema migrations)
 
 ## Other repos
 
@@ -36,6 +37,10 @@ Each service uses a DDD/ECB layout:
 ## Running locally
 
 ```bash
+# Start PostgreSQL instances
+docker compose up postgres-user postgres-project -d
+
+# Start services (each in a separate terminal)
 cd services/auth-service && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 cd services/user-service && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 cd services/project-service && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev

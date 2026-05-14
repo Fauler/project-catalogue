@@ -1,10 +1,12 @@
 package com.project.catalogue.auth.controller;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiResponse<T>(
         int status,
         T data,
@@ -26,6 +28,7 @@ public record ApiResponse<T>(
         );
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public record ApiError(
             String code,
             String message,
@@ -33,4 +36,3 @@ public record ApiResponse<T>(
             LocalDateTime timestamp
     ) {}
 }
-

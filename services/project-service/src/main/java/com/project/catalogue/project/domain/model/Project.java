@@ -43,7 +43,7 @@ public class Project {
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 }
 
