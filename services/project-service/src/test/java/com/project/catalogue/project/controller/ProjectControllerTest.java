@@ -3,6 +3,7 @@ package com.project.catalogue.project.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.catalogue.project.boundary.ProjectRequest;
 import com.project.catalogue.project.boundary.ProjectResponse;
+import com.project.catalogue.project.boundary.ProjectService;
 import com.project.catalogue.project.domain.exception.ProjectNotFoundException;
 import com.project.catalogue.project.domain.exception.ProjectUserNotFoundException;
 import com.project.catalogue.project.infrastructure.JwtService;

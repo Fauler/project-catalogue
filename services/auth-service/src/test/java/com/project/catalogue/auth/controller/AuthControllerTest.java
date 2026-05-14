@@ -2,6 +2,7 @@ package com.project.catalogue.auth.controller;
 
 import com.project.catalogue.auth.infrastructure.AuthProperties;
 import com.project.catalogue.auth.infrastructure.JwtService;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -21,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthController.class)
-@Import(com.project.catalogue.auth.infrastructure.SecurityConfig.class)
+@Import({com.project.catalogue.auth.infrastructure.SecurityConfig.class, SimpleMeterRegistry.class})
 @EnableConfigurationProperties(AuthProperties.class)
 @TestPropertySource(properties = {
         "jwt.secret=dGVzdC1zZWNyZXQta2V5LWZvci11bml0LXRlc3Rz",

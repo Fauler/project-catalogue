@@ -53,6 +53,7 @@ public class SecurityConfig {
                 }))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health", "/actuator/prometheus").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/**").hasAnyRole("USER", "ADMIN")

@@ -1,6 +1,6 @@
 package com.project.catalogue.project.domain.exception;
 
-public class ProjectUserNotFoundException extends RuntimeException {
+public final class ProjectUserNotFoundException extends ProjectDomainException {
     public ProjectUserNotFoundException(Long userId) {
         super("User " + userId + " does not exist");
     }

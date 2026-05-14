@@ -1,13 +1,12 @@
-package com.project.catalogue.project.controller;
+package com.project.catalogue.project.boundary;
 
-import com.project.catalogue.project.boundary.ProjectRequest;
-import com.project.catalogue.project.boundary.ProjectResponse;
 import com.project.catalogue.project.domain.exception.ProjectAlreadyExistsException;
 import com.project.catalogue.project.domain.exception.ProjectNotFoundException;
 import com.project.catalogue.project.domain.model.Project;
 import com.project.catalogue.project.domain.repository.ProjectRepository;
 import com.project.catalogue.project.domain.UserValidator;
-import lombok.RequiredArgsConstructor;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,12 +16,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProjectService {
 
     private final ProjectRepository repository;
     private final UserValidator userValidator;
+    private final Counter projectsAdded;
+    private final Counter projectsRemoved;
+
+    public ProjectService(ProjectRepository repository, UserValidator userValidator, MeterRegistry registry) {
+        this.repository = repository;
+        this.userValidator = userValidator;
+        this.projectsAdded = Counter.builder("projects.added").description("Projects added").register(registry);
+        this.projectsRemoved = Counter.builder("projects.removed").description("Projects removed").register(registry);
+    }
 
     @Transactional
     public ProjectResponse addProjectToUser(Long userId, ProjectRequest request) {
@@ -44,6 +51,7 @@ public class ProjectService {
         );
 
         Project saved = repository.save(project);
+        projectsAdded.increment();
         log.debug("Project {} created with id {}", saved.getLocation(), saved.getId());
         return toResponse(saved);
     }
@@ -67,6 +75,7 @@ public class ProjectService {
         }
 
         repository.deleteById(projectId);
+        projectsRemoved.increment();
         log.debug("Project {} deleted", projectId);
     }
 

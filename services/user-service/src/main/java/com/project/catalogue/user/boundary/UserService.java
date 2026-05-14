@@ -1,13 +1,11 @@
-package com.project.catalogue.user.controller;
+package com.project.catalogue.user.boundary;
 
-import com.project.catalogue.user.boundary.UserRequest;
-import com.project.catalogue.user.boundary.UserResponse;
-import com.project.catalogue.user.boundary.UserUpdateRequest;
 import com.project.catalogue.user.domain.exception.UserAlreadyExistsException;
 import com.project.catalogue.user.domain.exception.UserNotFoundException;
 import com.project.catalogue.user.domain.model.User;
 import com.project.catalogue.user.domain.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,12 +15,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private final Counter usersCreated;
+    private final Counter usersDeleted;
+
+    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, MeterRegistry registry) {
+        this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
+        this.usersCreated = Counter.builder("users.created").description("Users created").register(registry);
+        this.usersDeleted = Counter.builder("users.deleted").description("Users deleted").register(registry);
+    }
 
     @Transactional
     public UserResponse createUser(UserRequest request) {
@@ -39,6 +45,7 @@ public class UserService {
         user.setLastName(request.lastName());
 
         User saved = repository.save(user);
+        usersCreated.increment();
         log.debug("User {} created with id {}", saved.getEmail(), saved.getId());
         return toResponse(saved);
     }
@@ -75,6 +82,7 @@ public class UserService {
         User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
         repository.deleteById(id);
+        usersDeleted.increment();
         log.debug("User {} ({}) deleted", id, user.getEmail());
         return "Deleted user %s %s (%s)".formatted(
                 user.getFirstName(), user.getLastName(), user.getEmail());

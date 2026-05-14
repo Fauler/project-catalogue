@@ -1,6 +1,6 @@
 package com.project.catalogue.user.domain.exception;
 
-public class UserNotFoundException extends RuntimeException {
+public final class UserNotFoundException extends UserDomainException {
     public UserNotFoundException(Long id) {
         super("No user with id " + id);
     }

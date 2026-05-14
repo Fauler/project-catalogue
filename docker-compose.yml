@@ -7,6 +7,7 @@ services:
       - "8081:8081"
     environment:
       SPRING_PROFILES_ACTIVE: dev
+      JWT_SECRET: ${JWT_SECRET:-ZGV2LWF1dGgtand0LXNlY3JldC1mb3ItcHJvamVjdC1jYXRhbG9ndWUtMjAyNg==}
       DB_URL: ${USER_SERVICE_DB_URL:-jdbc:h2:file:/data/user-service;AUTO_SERVER=TRUE}
     volumes:
       - ./services/user-service/data:/data
@@ -28,6 +29,7 @@ services:
       - "8083:8083"
     environment:
       SPRING_PROFILES_ACTIVE: dev
+      JWT_SECRET: ${JWT_SECRET:-ZGV2LWF1dGgtand0LXNlY3JldC1mb3ItcHJvamVjdC1jYXRhbG9ndWUtMjAyNg==}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
       ALLOWED_CLIENT_IDS: ${ALLOWED_CLIENT_IDS:-client-user-01,client-admin-01}
       ADMIN_CLIENT_IDS: ${ADMIN_CLIENT_IDS:-client-admin-01}
@@ -49,6 +51,7 @@ services:
       - "8082:8082"
     environment:
       SPRING_PROFILES_ACTIVE: dev
+      JWT_SECRET: ${JWT_SECRET:-ZGV2LWF1dGgtand0LXNlY3JldC1mb3ItcHJvamVjdC1jYXRhbG9ndWUtMjAyNg==}
       DB_URL: ${PROJECT_SERVICE_DB_URL:-jdbc:h2:file:/data/project-service;AUTO_SERVER=TRUE}
       USER_SERVICE_URL: ${USER_SERVICE_URL:-http://user-service:8081}
     volumes:

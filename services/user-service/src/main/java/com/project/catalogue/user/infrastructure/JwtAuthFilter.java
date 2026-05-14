@@ -22,6 +22,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+import org.slf4j.MDC;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -47,6 +49,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             Claims claims = jwtService.validateToken(token);
             String clientId = claims.getSubject();
             String role = claims.get("role", String.class);
+            MDC.put("clientId", clientId);
             log.debug("JWT authenticated: clientId={}, role={}, {} {}",
                     clientId, role, request.getMethod(), request.getRequestURI());
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
@@ -61,6 +64,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        filterChain.doFilter(request, response);
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            MDC.remove("clientId");
+        }
     }
 }

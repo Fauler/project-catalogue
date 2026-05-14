@@ -18,12 +18,12 @@ public class UserServiceClient implements UserValidator {
 
     private final RestClient restClient;
 
-    public UserServiceClient(UserServiceClientProperties properties) {
+    public UserServiceClient(RestClient.Builder restClientBuilder, UserServiceClientProperties properties) {
         var requestFactory = ClientHttpRequestFactories.get(ClientHttpRequestFactorySettings.DEFAULTS
                 .withConnectTimeout(properties.connectTimeout())
                 .withReadTimeout(properties.readTimeout()));
 
-        this.restClient = RestClient.builder()
+        this.restClient = restClientBuilder
                 .baseUrl(properties.baseUrl())
                 .requestFactory(requestFactory)
                 .build();

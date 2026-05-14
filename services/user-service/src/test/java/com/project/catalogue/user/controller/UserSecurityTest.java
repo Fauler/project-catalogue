@@ -1,6 +1,7 @@
 package com.project.catalogue.user.controller;
 
 import com.project.catalogue.user.boundary.UserResponse;
+import com.project.catalogue.user.boundary.UserService;
 import com.project.catalogue.user.infrastructure.JwtProperties;
 import com.project.catalogue.user.infrastructure.JwtService;
 import com.project.catalogue.user.infrastructure.SecurityConfig;

@@ -1,16 +1,13 @@
-package com.project.catalogue.user.controller;
+package com.project.catalogue.user.boundary;
 
-import com.project.catalogue.user.boundary.UserRequest;
-import com.project.catalogue.user.boundary.UserResponse;
-import com.project.catalogue.user.boundary.UserUpdateRequest;
 import com.project.catalogue.user.domain.exception.UserAlreadyExistsException;
 import com.project.catalogue.user.domain.exception.UserNotFoundException;
 import com.project.catalogue.user.domain.model.User;
 import com.project.catalogue.user.domain.repository.UserRepository;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,7 +31,6 @@ class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    @InjectMocks
     private UserService service;
 
     private User user;
@@ -42,6 +38,8 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
+        service = new UserService(repository, passwordEncoder, new SimpleMeterRegistry());
+
         user = new User();
         user.setId(1L);
         user.setEmail("john@example.com");

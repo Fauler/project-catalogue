@@ -2,6 +2,9 @@ package com.project.catalogue.project.controller;
 
 import com.project.catalogue.project.boundary.ProjectRequest;
 import com.project.catalogue.project.boundary.ProjectResponse;
+import com.project.catalogue.project.boundary.ProjectService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -27,6 +30,13 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
+    @Operation(summary = "Add a project to a user")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Project added"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid request body"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "User not found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Project already exists for this user")
+    })
     @PostMapping
     public ResponseEntity<ApiResponse<ProjectResponse>> addProjectToUser(
             @PathVariable @Positive Long userId,
@@ -37,6 +47,11 @@ public class ProjectController {
                 .body(ApiResponse.success(HttpStatus.CREATED, response));
     }
 
+    @Operation(summary = "List projects for a user")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Projects listed"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "User not found")
+    })
     @GetMapping
     public ResponseEntity<ApiResponse<Page<ProjectResponse>>> listProjectsByUser(
             @PathVariable @Positive Long userId,
@@ -46,6 +61,11 @@ public class ProjectController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, projectService.listProjectsByUser(userId, page, size)));
     }
 
+    @Operation(summary = "Remove a project from a user")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Project removed"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Project not found")
+    })
     @DeleteMapping("/{projectId}")
     public ResponseEntity<ApiResponse<Void>> removeProject(
             @PathVariable @Positive Long userId,

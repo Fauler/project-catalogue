@@ -1,6 +1,6 @@
 package com.project.catalogue.project.domain.exception;
 
-public class ProjectNotFoundException extends RuntimeException {
+public final class ProjectNotFoundException extends ProjectDomainException {
     public ProjectNotFoundException(String projectId) {
         super("No project with id " + projectId);
     }

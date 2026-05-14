@@ -1,13 +1,13 @@
 package com.project.catalogue.user.boundary;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record UserRequest(
-        @Email @NotBlank String email,
-        @Size(max = 120) String firstName,
-        @Size(max = 120) String lastName,
-        @NotBlank @Size(min = 8) String password
+        @Email @NotBlank @Schema(example = "john@mail.com") String email,
+        @Size(max = 120) @Schema(example = "John") String firstName,
+        @Size(max = 120) @Schema(example = "Doe") String lastName,
+        @NotBlank @Size(min = 8) @Schema(example = "secret123") String password
 ) {}
-

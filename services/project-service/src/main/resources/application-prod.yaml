@@ -10,7 +10,3 @@ jwt:
 clients:
   user-service:
     base-url: ${USER_SERVICE_URL}
-logging:
-  structured:
-    format:
-      console: logstash

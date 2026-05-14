@@ -1,17 +1,15 @@
-package com.project.catalogue.project.controller;
+package com.project.catalogue.project.boundary;
 
-import com.project.catalogue.project.boundary.ProjectRequest;
-import com.project.catalogue.project.boundary.ProjectResponse;
 import com.project.catalogue.project.domain.exception.ProjectAlreadyExistsException;
 import com.project.catalogue.project.domain.exception.ProjectNotFoundException;
 import com.project.catalogue.project.domain.exception.ProjectUserNotFoundException;
 import com.project.catalogue.project.domain.model.Project;
 import com.project.catalogue.project.domain.repository.ProjectRepository;
 import com.project.catalogue.project.domain.UserValidator;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -39,7 +37,6 @@ class ProjectServiceTest {
     @Mock
     private UserValidator userValidator;
 
-    @InjectMocks
     private ProjectService service;
 
     private Project project;
@@ -47,6 +44,8 @@ class ProjectServiceTest {
 
     @BeforeEach
     void setUp() {
+        service = new ProjectService(repository, userValidator, new SimpleMeterRegistry());
+
         project = new Project();
         project.setId(1L);
         project.setUserId(10L);

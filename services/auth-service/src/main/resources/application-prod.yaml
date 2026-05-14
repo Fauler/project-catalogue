@@ -9,7 +9,3 @@ jwt:
 auth:
   allowed-client-ids: ${ALLOWED_CLIENT_IDS}
   admin-client-ids: ${ADMIN_CLIENT_IDS}
-logging:
-  structured:
-    format:
-      console: logstash
