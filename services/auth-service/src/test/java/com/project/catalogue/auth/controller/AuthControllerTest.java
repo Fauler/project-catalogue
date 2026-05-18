@@ -52,7 +52,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.status").value(200))
                 .andExpect(jsonPath("$.data.token").value("jwt-admin-token"))
                 .andExpect(jsonPath("$.data.expiresIn").value(3600))
-                .andExpect(jsonPath("$.error").isEmpty());
+                .andExpect(jsonPath("$.error").doesNotExist());
     }
 
     // ── 200: known user client (non-admin) ──
