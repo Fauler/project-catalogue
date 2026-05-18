@@ -12,6 +12,7 @@
     <description>Parent Project Catalogue microservices</description>
 
     <modules>
+        <module>services/auth-service</module>
         <module>services/user-service</module>
         <module>services/project-service</module>
     </modules>
