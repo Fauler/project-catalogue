@@ -25,6 +25,9 @@ management:
     web:
       exposure:
         include: health,prometheus
+  otlp:
+    tracing:
+      endpoint: ${MANAGEMENT_OTLP_TRACING_ENDPOINT:http://localhost:4318/v1/traces}
   tracing:
     sampling:
       probability: 1.0
