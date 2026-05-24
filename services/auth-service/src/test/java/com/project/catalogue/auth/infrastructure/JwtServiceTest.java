@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class JwtServiceTest {
 
     private static final String TEST_SECRET =
-            "bG9jYWwtZGV2LXNlY3JldC1rZXktZm9yLXByb2plY3QtY2F0YWxvZ3VlLXBvYw==";
+            "bXktand0U2VjcmV0LWZvci1sb2NhbC1wb3J0dWdhbC1saXNib2EtMjAyNg==";
     private static final long EXPIRATION_MS = 3600000L;
 
     private JwtService jwtService;

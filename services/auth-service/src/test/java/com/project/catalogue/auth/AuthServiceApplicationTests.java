@@ -6,7 +6,7 @@ import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
 @TestPropertySource(properties = {
-        "jwt.secret=bG9jYWwtZGV2LXNlY3JldC1rZXktZm9yLXByb2plY3QtY2F0YWxvZ3VlLXBvYw==",
+        "jwt.secret=bXktand0U2VjcmV0LWZvci1sb2NhbC1wb3J0dWdhbC1saXNib2EtMjAyNg==",
         "auth.allowed-client-ids=test-client",
         "auth.admin-client-ids=test-client"
 })

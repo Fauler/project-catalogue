@@ -5,7 +5,7 @@ spring:
     name: auth-service
 jwt:
   secret: ${JWT_SECRET}
-  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  expiration-ms: ${JWT_EXPIRATION_MS:120000}
 auth:
   allowed-client-ids: ${ALLOWED_CLIENT_IDS:client-user-01,client-admin-01}
   admin-client-ids: ${ADMIN_CLIENT_IDS:client-admin-01}

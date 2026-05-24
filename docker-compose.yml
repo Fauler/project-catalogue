@@ -43,7 +43,7 @@ services:
       - "8081:8081"
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      JWT_SECRET: ${JWT_SECRET:-ZGV2LWF1dGgtand0LXNlY3JldC1mb3ItcHJvamVjdC1jYXRhbG9ndWUtMjAyNg==}
+      JWT_SECRET: ${JWT_SECRET:-bXktand0U2VjcmV0LWZvci1sb2NhbC1wb3J0dWdhbC1saXNib2EtMjAyNg==}
       DB_URL: jdbc:postgresql://postgres-user:5432/user_service
       DB_USERNAME: user_service
       DB_PASSWORD: user_service
@@ -68,8 +68,8 @@ services:
       - "8083:8083"
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      JWT_SECRET: ${JWT_SECRET:-ZGV2LWF1dGgtand0LXNlY3JldC1mb3ItcHJvamVjdC1jYXRhbG9ndWUtMjAyNg==}
-      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+      JWT_SECRET: ${JWT_SECRET:-bXktand0U2VjcmV0LWZvci1sb2NhbC1wb3J0dWdhbC1saXNib2EtMjAyNg==}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-120000}
       ALLOWED_CLIENT_IDS: ${ALLOWED_CLIENT_IDS:-client-user-01,client-admin-01}
       ADMIN_CLIENT_IDS: ${ADMIN_CLIENT_IDS:-client-admin-01}
     restart: always
@@ -90,7 +90,7 @@ services:
       - "8082:8082"
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      JWT_SECRET: ${JWT_SECRET:-ZGV2LWF1dGgtand0LXNlY3JldC1mb3ItcHJvamVjdC1jYXRhbG9ndWUtMjAyNg==}
+      JWT_SECRET: ${JWT_SECRET:-bXktand0U2VjcmV0LWZvci1sb2NhbC1wb3J0dWdhbC1saXNib2EtMjAyNg==}
       DB_URL: jdbc:postgresql://postgres-project:5432/project_service
       DB_USERNAME: project_service
       DB_PASSWORD: project_service

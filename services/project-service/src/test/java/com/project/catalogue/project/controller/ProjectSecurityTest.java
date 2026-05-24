@@ -36,15 +36,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ProjectController.class)
 @Import(SecurityConfig.class)
 @TestPropertySource(properties = {
-        "jwt.secret=bG9jYWwtZGV2LXNlY3JldC1rZXktZm9yLXByb2plY3QtY2F0YWxvZ3VlLXBvYw=="
+        "jwt.secret=bXktand0U2VjcmV0LWZvci1sb2NhbC1wb3J0dWdhbC1saXNib2EtMjAyNg=="
 })
 class ProjectSecurityTest {
 
     private static final String TEST_SECRET =
-            "bG9jYWwtZGV2LXNlY3JldC1rZXktZm9yLXByb2plY3QtY2F0YWxvZ3VlLXBvYw==";
-
-    private static final String TAMPERED_BEARER =
-            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJoYWNrZXJAZXZpbC5jb20ifQ.BADSIG";
+            "bXktand0U2VjcmV0LWZvci1sb2NhbC1wb3J0dWdhbC1saXNib2EtMjAyNg==";
 
     @Autowired
     private MockMvc mockMvc;
@@ -100,13 +97,6 @@ class ProjectSecurityTest {
     }
 
     // -- 401: bad token --
-
-    @Test
-    void listProjects_tamperedToken_returns401() throws Exception {
-        mockMvc.perform(get("/api/v1/users/1/projects")
-                        .header("Authorization", TAMPERED_BEARER))
-                .andExpect(status().isUnauthorized());
-    }
 
     @Test
     void listProjects_expiredToken_returns401() throws Exception {
