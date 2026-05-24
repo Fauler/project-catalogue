@@ -51,7 +51,7 @@ public class UserService {
     }
 
     public UserResponse getUser(Long id) {
-        log.debug("Fetching user with id {}", id);
+        log.info("Fetching user with id {}", id);
         User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
         return toResponse(user);
@@ -89,7 +89,7 @@ public class UserService {
     }
 
     public Page<UserResponse> listUsers(int page, int size) {
-        log.debug("Listing users - page {}, size {}", page, size);
+        log.info("Listing users - page {}, size {}", page, size);
         return repository.findAll(PageRequest.of(page, size)).map(this::toResponse);
     }
 

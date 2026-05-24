@@ -3,6 +3,7 @@ package com.project.catalogue.auth.infrastructure;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +15,13 @@ import java.util.Date;
 public class JwtService {
 
     private final SecretKey signingKey;
+    @Getter
     private final long expirationMs;
 
     public JwtService(JwtProperties properties) {
         this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(properties.secret()));
         this.expirationMs = properties.expirationMs();
         log.debug("JWT signing key initialized");
-    }
-
-    public long getExpirationMs() {
-        return expirationMs;
     }
 
     public String generateToken(String clientId, String role) {

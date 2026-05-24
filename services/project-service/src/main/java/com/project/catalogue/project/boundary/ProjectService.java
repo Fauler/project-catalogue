@@ -57,7 +57,7 @@ public class ProjectService {
     }
 
     public Page<ProjectResponse> listProjectsByUser(Long userId, int page, int size) {
-        log.debug("Listing projects for user {} - page {}, size {}", userId, page, size);
+        log.info("Listing projects for user {} - page {}, size {}", userId, page, size);
         userValidator.validateUserExists(userId);
         PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
         return repository.findByUserId(userId, pageable)
