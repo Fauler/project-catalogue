@@ -41,12 +41,15 @@ services:
       dockerfile: infrastructure/docker/user-service/Dockerfile
     ports:
       - "8081:8081"
+      - "5081:5005"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       JWT_SECRET: ${JWT_SECRET:-bXktand0U2VjcmV0LWZvci1sb2NhbC1wb3J0dWdhbC1saXNib2EtMjAyNg==}
       DB_URL: jdbc:postgresql://postgres-user:5432/user_service
       DB_USERNAME: user_service
       DB_PASSWORD: user_service
+      JAVA_DEBUG_OPTS: ${JAVA_DEBUG_OPTS:-}
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: 0.0
     restart: always
     depends_on:
       postgres-user:
@@ -66,12 +69,15 @@ services:
       dockerfile: infrastructure/docker/auth-service/Dockerfile
     ports:
       - "8083:8083"
+      - "5083:5005"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       JWT_SECRET: ${JWT_SECRET:-bXktand0U2VjcmV0LWZvci1sb2NhbC1wb3J0dWdhbC1saXNib2EtMjAyNg==}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-120000}
       ALLOWED_CLIENT_IDS: ${ALLOWED_CLIENT_IDS:-client-user-01,client-admin-01}
       ADMIN_CLIENT_IDS: ${ADMIN_CLIENT_IDS:-client-admin-01}
+      JAVA_DEBUG_OPTS: ${JAVA_DEBUG_OPTS:-}
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: 0.0
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
@@ -88,6 +94,7 @@ services:
       dockerfile: infrastructure/docker/project-service/Dockerfile
     ports:
       - "8082:8082"
+      - "5082:5005"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       JWT_SECRET: ${JWT_SECRET:-bXktand0U2VjcmV0LWZvci1sb2NhbC1wb3J0dWdhbC1saXNib2EtMjAyNg==}
@@ -95,6 +102,8 @@ services:
       DB_USERNAME: project_service
       DB_PASSWORD: project_service
       USER_SERVICE_URL: ${USER_SERVICE_URL:-http://user-service:8081}
+      JAVA_DEBUG_OPTS: ${JAVA_DEBUG_OPTS:-}
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: 0.0
     restart: always
     depends_on:
       postgres-project:

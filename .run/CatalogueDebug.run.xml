@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="CatalogueDebug" type="CompoundRunConfigurationType">
+    <toRun name="Auth" type="Remote" />
+    <toRun name="Project" type="Remote" />
+    <toRun name="User" type="Remote" />
+    <method v="2" />
+  </configuration>
+</component>

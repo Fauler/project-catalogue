@@ -15,7 +15,10 @@ COPY --from=build /app/target/auth-service-0.0.1-SNAPSHOT.jar app.jar
 RUN chown appuser:appgroup app.jar
 USER appuser
 EXPOSE 8083
-ENTRYPOINT ["java", \
-  "-XX:InitialRAMPercentage=50", \
-  "-XX:MaxRAMPercentage=75",     \
-  "-jar", "app.jar"]
+# Set JAVA_DEBUG_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 to enable remote debug
+ENV JAVA_DEBUG_OPTS=""
+ENTRYPOINT ["sh", "-c", "java \
+  -XX:InitialRAMPercentage=50 \
+  -XX:MaxRAMPercentage=75 \
+  ${JAVA_DEBUG_OPTS} \
+  -jar app.jar"]
