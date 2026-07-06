@@ -17,6 +17,8 @@ spring:
     locations: classpath:db/migration
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    listener:
+      observation-enabled: true
     consumer:
       group-id: project-service
       auto-offset-reset: earliest
