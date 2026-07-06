@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
@@ -97,7 +98,7 @@ class ProjectServiceTest {
         when(repository.findByUserId(eq(10L), any(Pageable.class))).thenReturn(page);
 
         // when
-        Page<ProjectResponse> result = service.listProjectsByUser(10L, 0, 10);
+        Page<ProjectResponse> result = service.listProjectsByUser(10L, PageRequest.of(0, 10));
 
         // then
         assertThat(result.getContent()).hasSize(1);

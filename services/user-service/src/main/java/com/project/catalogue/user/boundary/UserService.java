@@ -8,7 +8,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,20 +77,18 @@ public class UserService {
     }
 
     @Transactional
-    public String deleteUser(Long id) {
+    public void deleteUser(Long id) {
         log.info("Deleting user {}", id);
         User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
         repository.deleteById(id);
         usersDeleted.increment();
         log.debug("User {} ({}) deleted", id, user.getEmail());
-        return "Deleted user %s %s (%s)".formatted(
-                user.getFirstName(), user.getLastName(), user.getEmail());
     }
 
-    public Page<UserResponse> listUsers(int page, int size) {
-        log.info("Listing users - page {}, size {}", page, size);
-        return repository.findAll(PageRequest.of(page, size)).map(this::toResponse);
+    public Page<UserResponse> listUsers(Pageable pageable) {
+        log.info("Listing users - {}", pageable);
+        return repository.findAll(pageable).map(this::toResponse);
     }
 
     private UserResponse toResponse(User user) {

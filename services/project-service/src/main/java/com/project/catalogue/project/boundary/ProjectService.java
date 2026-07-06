@@ -9,8 +9,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,10 +55,9 @@ public class ProjectService {
         return toResponse(saved);
     }
 
-    public Page<ProjectResponse> listProjectsByUser(Long userId, int page, int size) {
-        log.info("Listing projects for user {} - page {}, size {}", userId, page, size);
+    public Page<ProjectResponse> listProjectsByUser(Long userId, Pageable pageable) {
+        log.info("Listing projects for user {} - {}", userId, pageable);
         userValidator.validateUserExists(userId);
-        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
         return repository.findByUserId(userId, pageable)
                 .map(this::toResponse);
     }
@@ -68,10 +66,10 @@ public class ProjectService {
     public void removeProject(Long userId, Long projectId) {
         log.info("Removing project {} from user {}", projectId, userId);
         Project project = repository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException(String.valueOf(projectId)));
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
         if (!project.getUserId().equals(userId)) {
-            throw new ProjectNotFoundException(String.valueOf(projectId));
+            throw new ProjectNotFoundException(projectId);
         }
 
         repository.deleteById(projectId);

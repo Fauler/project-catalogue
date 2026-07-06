@@ -11,7 +11,7 @@ import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
@@ -133,9 +133,8 @@ class UserSecurityTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void deleteUser_roleAdmin_returns200() throws Exception {
-        when(userService.deleteUser(1L)).thenReturn("User deleted");
+    void deleteUser_roleAdmin_returns204() throws Exception {
         mockMvc.perform(delete("/api/v1/users/1").with(csrf()))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 }

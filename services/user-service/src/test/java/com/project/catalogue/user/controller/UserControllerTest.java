@@ -1,6 +1,6 @@
 package com.project.catalogue.user.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.project.catalogue.user.boundary.UserRequest;
 import com.project.catalogue.user.boundary.UserResponse;
 import com.project.catalogue.user.boundary.UserService;
@@ -8,7 +8,7 @@ import com.project.catalogue.user.domain.exception.UserNotFoundException;
 import com.project.catalogue.user.infrastructure.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -102,14 +102,10 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void returns200_onSuccessfulDelete() throws Exception {
-        // given
-        when(userService.deleteUser(1L)).thenReturn("Deleted user John Doe (john@example.com)");
-
-        // when / then
+    void returns204_onSuccessfulDelete() throws Exception {
+        // given / when / then
         mockMvc.perform(delete("/api/v1/users/1").with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").value("Deleted user John Doe (john@example.com)"));
+                .andExpect(status().isNoContent());
     }
 
     @Test

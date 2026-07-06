@@ -1,5 +1,6 @@
 package com.project.catalogue.auth.controller;
 
+import com.project.catalogue.auth.boundary.ApiResult;
 import com.project.catalogue.auth.domain.exception.UnauthorizedClientException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -17,33 +18,33 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnauthorizedClientException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUnauthorizedClient(UnauthorizedClientException ex) {
+    public ResponseEntity<ApiResult<Void>> handleUnauthorizedClient(UnauthorizedClientException ex) {
         log.warn("Unauthorized client: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.error(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED_CLIENT", ex.getMessage()));
+                .body(ApiResult.error(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED_CLIENT", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResult<Void>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new LinkedHashMap<>();
         ex.getBindingResult().getFieldErrors()
                 .forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
         log.debug("Validation failed: {}", errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.validationError(HttpStatus.BAD_REQUEST, "Validation failed", errors));
+                .body(ApiResult.validationError(HttpStatus.BAD_REQUEST, "Validation failed", errors));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(ConstraintViolationException ex) {
+    public ResponseEntity<ApiResult<Void>> handleConstraintViolation(ConstraintViolationException ex) {
         log.debug("Constraint violation: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", ex.getMessage()));
+                .body(ApiResult.error(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleUnexpected(Exception ex) {
+    public ResponseEntity<ApiResult<Void>> handleUnexpected(Exception ex) {
         log.error("Unexpected error", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "An unexpected error occurred."));
+                .body(ApiResult.error(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "An unexpected error occurred."));
     }
 }

@@ -1,5 +1,6 @@
 package com.project.catalogue.user.controller;
 
+import com.project.catalogue.user.boundary.ApiResult;
 import com.project.catalogue.user.domain.exception.UserAlreadyExistsException;
 import com.project.catalogue.user.domain.exception.UserNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -19,47 +20,47 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUserNotFound(UserNotFoundException ex) {
+    public ResponseEntity<ApiResult<Void>> handleUserNotFound(UserNotFoundException ex) {
         log.warn("User not found: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", ex.getMessage()));
+                .body(ApiResult.error(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", ex.getMessage()));
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+    public ResponseEntity<ApiResult<Void>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
         log.warn("User already exists: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(HttpStatus.CONFLICT, "USER_ALREADY_EXISTS", ex.getMessage()));
+                .body(ApiResult.error(HttpStatus.CONFLICT, "USER_ALREADY_EXISTS", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResult<Void>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new LinkedHashMap<>();
         ex.getBindingResult().getFieldErrors()
                 .forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
         log.debug("Validation failed: {}", errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.validationError(HttpStatus.BAD_REQUEST, "Validation failed", errors));
+                .body(ApiResult.validationError(HttpStatus.BAD_REQUEST, "Validation failed", errors));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiResponse<Void>> handleDataIntegrity(DataIntegrityViolationException ex) {
+    public ResponseEntity<ApiResult<Void>> handleDataIntegrity(DataIntegrityViolationException ex) {
         log.warn("Data integrity violation: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(HttpStatus.CONFLICT, "USER_ALREADY_EXISTS", "A user with that email already exists."));
+                .body(ApiResult.error(HttpStatus.CONFLICT, "USER_ALREADY_EXISTS", "A user with that email already exists."));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(ConstraintViolationException ex) {
+    public ResponseEntity<ApiResult<Void>> handleConstraintViolation(ConstraintViolationException ex) {
         log.debug("Constraint violation: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", ex.getMessage()));
+                .body(ApiResult.error(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleUnexpected(Exception ex) {
+    public ResponseEntity<ApiResult<Void>> handleUnexpected(Exception ex) {
         log.error("Unexpected error", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "An unexpected error occurred."));
+                .body(ApiResult.error(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "An unexpected error occurred."));
     }
 }

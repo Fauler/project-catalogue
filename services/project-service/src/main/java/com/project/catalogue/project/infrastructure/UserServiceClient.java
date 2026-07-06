@@ -4,8 +4,8 @@ import com.project.catalogue.project.domain.exception.ProjectUserNotFoundExcepti
 import com.project.catalogue.project.domain.UserValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.web.client.ClientHttpRequestFactories;
-import org.springframework.boot.web.client.ClientHttpRequestFactorySettings;
+import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
+import org.springframework.boot.http.client.HttpClientSettings;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
@@ -19,9 +19,10 @@ public class UserServiceClient implements UserValidator {
     private final RestClient restClient;
 
     public UserServiceClient(RestClient.Builder restClientBuilder, UserServiceClientProperties properties) {
-        var requestFactory = ClientHttpRequestFactories.get(ClientHttpRequestFactorySettings.DEFAULTS
+        var settings = HttpClientSettings.defaults()
                 .withConnectTimeout(properties.connectTimeout())
-                .withReadTimeout(properties.readTimeout()));
+                .withReadTimeout(properties.readTimeout());
+        var requestFactory = ClientHttpRequestFactoryBuilder.detect().build(settings);
 
         this.restClient = restClientBuilder
                 .baseUrl(properties.baseUrl())

@@ -163,10 +163,9 @@ class UserServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.of(user));
 
         // when
-        String message = service.deleteUser(1L);
+        service.deleteUser(1L);
 
         // then
-        assertThat(message).contains("john@example.com");
         verify(repository).deleteById(1L);
     }
 

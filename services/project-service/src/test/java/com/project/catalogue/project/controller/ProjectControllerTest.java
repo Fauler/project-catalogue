@@ -1,6 +1,6 @@
 package com.project.catalogue.project.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.project.catalogue.project.boundary.ProjectRequest;
 import com.project.catalogue.project.boundary.ProjectResponse;
 import com.project.catalogue.project.boundary.ProjectService;
@@ -9,8 +9,9 @@ import com.project.catalogue.project.domain.exception.ProjectUserNotFoundExcepti
 import com.project.catalogue.project.infrastructure.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -85,7 +86,7 @@ class ProjectControllerTest {
     @WithMockUser(roles = "USER")
     void listProjects_success_returns200() throws Exception {
         // given
-        when(projectService.listProjectsByUser(eq(10L), eq(0), eq(10)))
+        when(projectService.listProjectsByUser(eq(10L), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(sampleResponse())));
 
         // when / then
@@ -96,20 +97,19 @@ class ProjectControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void removeProject_success_returns200() throws Exception {
+    void removeProject_success_returns204() throws Exception {
         // given
 
         // when / then
         mockMvc.perform(delete("/api/v1/users/10/projects/1").with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value(200));
+                .andExpect(status().isNoContent());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void removeProject_notFound_returns404() throws Exception {
         // given
-        doThrow(new ProjectNotFoundException("99")).when(projectService).removeProject(10L, 99L);
+        doThrow(new ProjectNotFoundException(99L)).when(projectService).removeProject(10L, 99L);
 
         // when / then
         mockMvc.perform(delete("/api/v1/users/10/projects/99").with(csrf()))

@@ -1,5 +1,6 @@
 package com.project.catalogue.user.controller;
 
+import com.project.catalogue.user.boundary.ApiResult;
 import com.project.catalogue.user.boundary.UserRequest;
 import com.project.catalogue.user.boundary.UserResponse;
 import com.project.catalogue.user.boundary.UserService;
@@ -8,9 +9,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,7 +24,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -39,19 +41,18 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Email already taken")
     })
     @PostMapping
-    public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody UserRequest request) {
+    public ResponseEntity<ApiResult<UserResponse>> createUser(@Valid @RequestBody UserRequest request) {
         UserResponse response = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(HttpStatus.CREATED, response));
+                .body(ApiResult.success(HttpStatus.CREATED, response));
     }
 
     @Operation(summary = "List users with pagination")
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<UserResponse>>> listUsers(
-            @RequestParam(defaultValue = "0") @PositiveOrZero int page,
-            @RequestParam(defaultValue = "10") @Positive int size
+    public ResponseEntity<ApiResult<Page<UserResponse>>> listUsers(
+            @ParameterObject @PageableDefault(size = 10) Pageable pageable
     ) {
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, userService.listUsers(page, size)));
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK, userService.listUsers(pageable)));
     }
 
     @Operation(summary = "Get user by id")
@@ -60,8 +61,8 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable @Positive Long id) {
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, userService.getUser(id)));
+    public ResponseEntity<ApiResult<UserResponse>> getUser(@PathVariable @Positive Long id) {
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK, userService.getUser(id)));
     }
 
     @Operation(summary = "Update user")
@@ -72,18 +73,18 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Email already taken")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable @Positive Long id, @Valid @RequestBody UserUpdateRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, userService.updateUser(id, request)));
+    public ResponseEntity<ApiResult<UserResponse>> updateUser(@PathVariable @Positive Long id, @Valid @RequestBody UserUpdateRequest request) {
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK, userService.updateUser(id, request)));
     }
 
     @Operation(summary = "Delete user")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "User deleted"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "User deleted"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "User not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable @Positive Long id) {
-        String message = userService.deleteUser(id);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, message));
+    public ResponseEntity<Void> deleteUser(@PathVariable @Positive Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

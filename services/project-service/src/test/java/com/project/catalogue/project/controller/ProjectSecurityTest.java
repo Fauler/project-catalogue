@@ -11,9 +11,10 @@ import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -25,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -128,7 +130,7 @@ class ProjectSecurityTest {
     @Test
     @WithMockUser(roles = "USER")
     void listProjects_roleUser_returns200() throws Exception {
-        when(projectService.listProjectsByUser(1L, 0, 10))
+        when(projectService.listProjectsByUser(eq(1L), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(sampleProject())));
         mockMvc.perform(get("/api/v1/users/1/projects"))
                 .andExpect(status().isOk());

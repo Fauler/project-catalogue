@@ -1,7 +1,7 @@
 package com.project.catalogue.user.infrastructure;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.catalogue.user.controller.ApiResponse;
+import tools.jackson.databind.ObjectMapper;
+import com.project.catalogue.user.boundary.ApiResult;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,7 +46,7 @@ public class SecurityConfig {
                     res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     res.setContentType(MediaType.APPLICATION_JSON_VALUE);
                     res.getWriter().write(objectMapper.writeValueAsString(
-                            ApiResponse.error(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "Unauthorized")));
+                            ApiResult.error(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "Unauthorized")));
                 })
                 .accessDeniedHandler((req, res, accessEx) -> {
                     log.warn("Access denied: {} {} - principal={} - {}",
@@ -56,10 +56,10 @@ public class SecurityConfig {
                     res.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     res.setContentType(MediaType.APPLICATION_JSON_VALUE);
                     res.getWriter().write(objectMapper.writeValueAsString(
-                            ApiResponse.error(HttpStatus.FORBIDDEN, "FORBIDDEN", "Access denied")));
+                            ApiResult.error(HttpStatus.FORBIDDEN, "FORBIDDEN", "Access denied")));
                 }))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/health", "/actuator/prometheus").permitAll()
+                .requestMatchers("/actuator/health/**", "/actuator/prometheus").permitAll()
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/**").hasAnyRole("USER", "ADMIN")

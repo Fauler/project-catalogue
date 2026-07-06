@@ -1,7 +1,7 @@
 package com.project.catalogue.project.infrastructure;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.catalogue.project.controller.ApiResponse;
+import tools.jackson.databind.ObjectMapper;
+import com.project.catalogue.project.boundary.ApiResult;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -60,7 +60,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getWriter().write(objectMapper.writeValueAsString(
-                    ApiResponse.error(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN", "Invalid or expired token")));
+                    ApiResult.error(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN", "Invalid or expired token")));
             return;
         }
 

@@ -1,5 +1,6 @@
 package com.project.catalogue.auth.controller;
 
+import com.project.catalogue.auth.boundary.ApiResult;
 import com.project.catalogue.auth.boundary.TokenRequest;
 import com.project.catalogue.auth.boundary.TokenResponse;
 import com.project.catalogue.auth.domain.exception.UnauthorizedClientException;
@@ -41,7 +42,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Unknown clientId")
     })
     @PostMapping("/token")
-    public ResponseEntity<com.project.catalogue.auth.controller.ApiResponse<TokenResponse>> token(@Valid @RequestBody TokenRequest request) {
+    public ResponseEntity<ApiResult<TokenResponse>> token(@Valid @RequestBody TokenRequest request) {
         String clientId = request.clientId();
 
         if (!authProperties.allowedClientIds().contains(clientId)) {
@@ -55,6 +56,6 @@ public class AuthController {
         String token = jwtService.generateToken(clientId, role);
         tokensIssued.increment();
         long expiresIn = jwtService.getExpirationMs() / 1000;
-        return ResponseEntity.ok(com.project.catalogue.auth.controller.ApiResponse.success(HttpStatus.OK, new TokenResponse(token, expiresIn)));
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK, new TokenResponse(token, expiresIn)));
     }
 }
