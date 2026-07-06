@@ -1,6 +1,7 @@
 package com.project.catalogue.user.controller;
 
 import com.project.catalogue.user.boundary.ApiResult;
+import com.project.catalogue.user.domain.exception.InvalidCredentialsException;
 import com.project.catalogue.user.domain.exception.UserAlreadyExistsException;
 import com.project.catalogue.user.domain.exception.UserNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -31,6 +32,13 @@ public class GlobalExceptionHandler {
         log.warn("User already exists: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiResult.error(HttpStatus.CONFLICT, "USER_ALREADY_EXISTS", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiResult<Void>> handleInvalidCredentials(InvalidCredentialsException ex) {
+        log.warn("Invalid credentials: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResult.error(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

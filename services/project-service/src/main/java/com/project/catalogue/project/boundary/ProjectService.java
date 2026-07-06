@@ -77,6 +77,15 @@ public class ProjectService {
         log.debug("Project {} deleted", projectId);
     }
 
+    @Transactional
+    public void deleteAllByUserId(Long userId) {
+        long removed = repository.deleteByUserId(userId);
+        if (removed > 0) {
+            projectsRemoved.increment(removed);
+        }
+        log.info("Deleted {} project(s) for user {}", removed, userId);
+    }
+
     private ProjectResponse toResponse(Project project) {
         return new ProjectResponse(
                 project.getId(),

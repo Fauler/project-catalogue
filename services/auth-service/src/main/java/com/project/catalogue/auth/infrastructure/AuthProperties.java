@@ -2,11 +2,11 @@ package com.project.catalogue.auth.infrastructure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.List;
+import java.util.Set;
 
 @ConfigurationProperties(prefix = "auth")
 public record AuthProperties(
-        List<String> allowedClientIds,
-        List<String> adminClientIds
+        Set<String> allowedClientIds,
+        Set<String> adminClientIds
 ) {}
 

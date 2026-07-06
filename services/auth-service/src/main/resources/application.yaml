@@ -9,6 +9,9 @@ jwt:
 auth:
   allowed-client-ids: ${ALLOWED_CLIENT_IDS:client-user-01,client-admin-01}
   admin-client-ids: ${ADMIN_CLIENT_IDS:client-admin-01}
+clients:
+  user-service:
+    base-url: ${USER_SERVICE_URL:http://localhost:8081}
 management:
   endpoints:
     web:

@@ -1,6 +1,7 @@
 package com.project.catalogue.auth.controller;
 
 import com.project.catalogue.auth.boundary.ApiResult;
+import com.project.catalogue.auth.domain.exception.InvalidUserCredentialsException;
 import com.project.catalogue.auth.domain.exception.UnauthorizedClientException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,13 @@ public class GlobalExceptionHandler {
         log.warn("Unauthorized client: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResult.error(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED_CLIENT", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidUserCredentialsException.class)
+    public ResponseEntity<ApiResult<Void>> handleInvalidUserCredentials(InvalidUserCredentialsException ex) {
+        log.warn("Invalid user credentials: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResult.error(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

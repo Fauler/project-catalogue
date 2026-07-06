@@ -2,8 +2,10 @@ package com.project.catalogue.user.controller;
 
 import tools.jackson.databind.ObjectMapper;
 import com.project.catalogue.user.boundary.UserRequest;
+import com.project.catalogue.user.boundary.CredentialsRequest;
 import com.project.catalogue.user.boundary.UserResponse;
 import com.project.catalogue.user.boundary.UserService;
+import com.project.catalogue.user.domain.exception.InvalidCredentialsException;
 import com.project.catalogue.user.domain.exception.UserNotFoundException;
 import com.project.catalogue.user.infrastructure.JwtService;
 import org.junit.jupiter.api.Test;
@@ -115,5 +117,63 @@ class UserControllerTest {
         // when / then
         mockMvc.perform(get("/api/v1/users/1"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void validate_returns200_whenCredentialsValid() throws Exception {
+        // given
+        when(userService.validateCredentials(any())).thenReturn(sampleResponse());
+        CredentialsRequest request = new CredentialsRequest("john@example.com", "secret123");
+
+        // when / then
+        mockMvc.perform(post("/api/v1/users/validate")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.email").value("john@example.com"));
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void validate_returns401_whenCredentialsInvalid() throws Exception {
+        // given
+        when(userService.validateCredentials(any()))
+                .thenThrow(new InvalidCredentialsException("john@example.com"));
+        CredentialsRequest request = new CredentialsRequest("john@example.com", "wrong");
+
+        // when / then
+        mockMvc.perform(post("/api/v1/users/validate")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error.code").value("INVALID_CREDENTIALS"));
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void search_returns200_whenUserExists() throws Exception {
+        // given
+        when(userService.getUserByEmail("john@example.com")).thenReturn(sampleResponse());
+
+        // when / then
+        mockMvc.perform(get("/api/v1/users/search").param("email", "john@example.com"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.email").value("john@example.com"));
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void search_returns404_whenUserMissing() throws Exception {
+        // given
+        when(userService.getUserByEmail("missing@example.com"))
+                .thenThrow(new UserNotFoundException("missing@example.com"));
+
+        // when / then
+        mockMvc.perform(get("/api/v1/users/search").param("email", "missing@example.com"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error.code").value("USER_NOT_FOUND"));
     }
 }

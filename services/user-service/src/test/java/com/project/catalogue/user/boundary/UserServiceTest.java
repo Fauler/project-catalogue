@@ -1,5 +1,6 @@
 package com.project.catalogue.user.boundary;
 
+import com.project.catalogue.user.domain.exception.InvalidCredentialsException;
 import com.project.catalogue.user.domain.exception.UserAlreadyExistsException;
 import com.project.catalogue.user.domain.exception.UserNotFoundException;
 import com.project.catalogue.user.domain.model.User;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
@@ -31,6 +33,9 @@ class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     private UserService service;
 
     private User user;
@@ -38,7 +43,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new UserService(repository, passwordEncoder, new SimpleMeterRegistry());
+        service = new UserService(repository, passwordEncoder, eventPublisher, new SimpleMeterRegistry());
 
         user = new User();
         user.setId(1L);
@@ -167,6 +172,7 @@ class UserServiceTest {
 
         // then
         verify(repository).deleteById(1L);
+        verify(eventPublisher).publishEvent(any(com.project.catalogue.user.event.UserDeletedEvent.class));
     }
 
     @Test
@@ -177,5 +183,64 @@ class UserServiceTest {
         // when / then
         assertThatThrownBy(() -> service.deleteUser(99L))
                 .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @Test
+    void getUserByEmail_valid_returnsUser() {
+        // given
+        when(repository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+
+        // when
+        UserResponse response = service.getUserByEmail("john@example.com");
+
+        // then
+        assertThat(response.email()).isEqualTo("john@example.com");
+    }
+
+    @Test
+    void getUserByEmail_notFound_throws() {
+        // given
+        when(repository.findByEmail("missing@example.com")).thenReturn(Optional.empty());
+
+        // when / then
+        assertThatThrownBy(() -> service.getUserByEmail("missing@example.com"))
+                .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @Test
+    void validateCredentials_valid_returnsUser() {
+        // given
+        CredentialsRequest credentials = new CredentialsRequest("john@example.com", "secret123");
+        when(repository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("secret123", "hashed")).thenReturn(true);
+
+        // when
+        UserResponse response = service.validateCredentials(credentials);
+
+        // then
+        assertThat(response.email()).isEqualTo("john@example.com");
+    }
+
+    @Test
+    void validateCredentials_wrongPassword_throws() {
+        // given
+        CredentialsRequest credentials = new CredentialsRequest("john@example.com", "wrong");
+        when(repository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrong", "hashed")).thenReturn(false);
+
+        // when / then
+        assertThatThrownBy(() -> service.validateCredentials(credentials))
+                .isInstanceOf(InvalidCredentialsException.class);
+    }
+
+    @Test
+    void validateCredentials_unknownEmail_throws() {
+        // given
+        CredentialsRequest credentials = new CredentialsRequest("missing@example.com", "secret123");
+        when(repository.findByEmail("missing@example.com")).thenReturn(Optional.empty());
+
+        // when / then
+        assertThatThrownBy(() -> service.validateCredentials(credentials))
+                .isInstanceOf(InvalidCredentialsException.class);
     }
 }

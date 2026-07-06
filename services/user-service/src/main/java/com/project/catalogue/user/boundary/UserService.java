@@ -1,12 +1,15 @@
 package com.project.catalogue.user.boundary;
 
+import com.project.catalogue.user.domain.exception.InvalidCredentialsException;
 import com.project.catalogue.user.domain.exception.UserAlreadyExistsException;
 import com.project.catalogue.user.domain.exception.UserNotFoundException;
 import com.project.catalogue.user.domain.model.User;
 import com.project.catalogue.user.domain.repository.UserRepository;
+import com.project.catalogue.user.event.UserDeletedEvent;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,12 +23,15 @@ public class UserService {
 
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
     private final Counter usersCreated;
     private final Counter usersDeleted;
 
-    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, MeterRegistry registry) {
+    public UserService(UserRepository repository, PasswordEncoder passwordEncoder,
+                       ApplicationEventPublisher eventPublisher, MeterRegistry registry) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
+        this.eventPublisher = eventPublisher;
         this.usersCreated = Counter.builder("users.created").description("Users created").register(registry);
         this.usersDeleted = Counter.builder("users.deleted").description("Users deleted").register(registry);
     }
@@ -57,6 +63,13 @@ public class UserService {
         return toResponse(user);
     }
 
+    public UserResponse getUserByEmail(String email) {
+        log.info("Fetching user with email {}", email);
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(email));
+        return toResponse(user);
+    }
+
     @Transactional
     public UserResponse updateUser(Long id, UserUpdateRequest request) {
         log.info("Updating user {}", id);
@@ -83,12 +96,27 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(id));
         repository.deleteById(id);
         usersDeleted.increment();
+        eventPublisher.publishEvent(new UserDeletedEvent(id, user.getEmail(), java.time.Instant.now()));
         log.debug("User {} ({}) deleted", id, user.getEmail());
     }
 
     public Page<UserResponse> listUsers(Pageable pageable) {
         log.info("Listing users - {}", pageable);
         return repository.findAll(pageable).map(this::toResponse);
+    }
+
+    public UserResponse validateCredentials(CredentialsRequest request) {
+        log.info("Validating credentials for {}", request.email());
+        User user = repository.findByEmail(request.email())
+                .orElseThrow(() -> new InvalidCredentialsException(request.email()));
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            log.warn("Password mismatch for {}", request.email());
+            throw new InvalidCredentialsException(request.email());
+        }
+
+        log.debug("Credentials validated for {}", request.email());
+        return toResponse(user);
     }
 
     private UserResponse toResponse(User user) {

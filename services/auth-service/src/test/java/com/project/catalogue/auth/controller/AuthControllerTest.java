@@ -2,6 +2,8 @@ package com.project.catalogue.auth.controller;
 
 import com.project.catalogue.auth.infrastructure.AuthProperties;
 import com.project.catalogue.auth.infrastructure.JwtService;
+import com.project.catalogue.auth.infrastructure.UserServiceClient;
+import com.project.catalogue.auth.domain.exception.InvalidUserCredentialsException;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,6 +40,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private UserServiceClient userServiceClient;
 
     // ── 200: known admin client ──
 
@@ -96,6 +102,50 @@ class AuthControllerTest {
         mockMvc.perform(post("/auth/token")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"clientId\": \"\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    // ── /auth/token/authenticated ──
+
+    @Test
+    void authenticatedToken_validCredentials_returns200() throws Exception {
+        when(jwtService.generateToken("client-admin-01", "ADMIN")).thenReturn("jwt-admin-token");
+        when(jwtService.getExpirationMs()).thenReturn(3600000L);
+
+        mockMvc.perform(post("/auth/token/authenticated")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"clientId\": \"client-admin-01\", \"email\": \"john@mail.com\", \"password\": \"secret123\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.token").value("jwt-admin-token"))
+                .andExpect(jsonPath("$.data.expiresIn").value(3600));
+    }
+
+    @Test
+    void authenticatedToken_invalidCredentials_returns401() throws Exception {
+        doThrow(new InvalidUserCredentialsException("john@mail.com"))
+                .when(userServiceClient).validateCredentials(eq("john@mail.com"), anyString());
+
+        mockMvc.perform(post("/auth/token/authenticated")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"clientId\": \"client-admin-01\", \"email\": \"john@mail.com\", \"password\": \"wrong\"}"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error.code").value("INVALID_CREDENTIALS"));
+    }
+
+    @Test
+    void authenticatedToken_unknownClient_returns401() throws Exception {
+        mockMvc.perform(post("/auth/token/authenticated")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"clientId\": \"unknown-client\", \"email\": \"john@mail.com\", \"password\": \"secret123\"}"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error.code").value("UNAUTHORIZED_CLIENT"));
+    }
+
+    @Test
+    void authenticatedToken_missingPassword_returns400() throws Exception {
+        mockMvc.perform(post("/auth/token/authenticated")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"clientId\": \"client-admin-01\", \"email\": \"john@mail.com\"}"))
                 .andExpect(status().isBadRequest());
     }
 

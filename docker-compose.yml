@@ -35,6 +35,31 @@ services:
     networks:
       - catalogue-network
 
+  kafka:
+    image: apache/kafka:3.8.1
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - catalogue-network
+
   user-service:
     build:
       context: .
@@ -48,11 +73,14 @@ services:
       DB_URL: jdbc:postgresql://postgres-user:5432/user_service
       DB_USERNAME: user_service
       DB_PASSWORD: user_service
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
       JAVA_DEBUG_OPTS: ${JAVA_DEBUG_OPTS:-}
       MANAGEMENT_TRACING_SAMPLING_PROBABILITY: 0.0
     restart: always
     depends_on:
       postgres-user:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
@@ -76,6 +104,7 @@ services:
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-120000}
       ALLOWED_CLIENT_IDS: ${ALLOWED_CLIENT_IDS:-client-user-01,client-admin-01}
       ADMIN_CLIENT_IDS: ${ADMIN_CLIENT_IDS:-client-admin-01}
+      USER_SERVICE_URL: ${USER_SERVICE_URL:-http://user-service:8081}
       JAVA_DEBUG_OPTS: ${JAVA_DEBUG_OPTS:-}
       MANAGEMENT_TRACING_SAMPLING_PROBABILITY: 0.0
     restart: always
@@ -85,6 +114,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    depends_on:
+      user-service:
+        condition: service_healthy
     networks:
       - catalogue-network
 
@@ -102,6 +134,7 @@ services:
       DB_USERNAME: project_service
       DB_PASSWORD: project_service
       USER_SERVICE_URL: ${USER_SERVICE_URL:-http://user-service:8081}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
       JAVA_DEBUG_OPTS: ${JAVA_DEBUG_OPTS:-}
       MANAGEMENT_TRACING_SAMPLING_PROBABILITY: 0.0
     restart: always
@@ -109,6 +142,8 @@ services:
       postgres-project:
         condition: service_healthy
       user-service:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     networks:
       - catalogue-network

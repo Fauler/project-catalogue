@@ -137,4 +137,28 @@ class ProjectServiceTest {
         assertThatThrownBy(() -> service.removeProject(10L, 1L))
                 .isInstanceOf(ProjectNotFoundException.class);
     }
+
+    @Test
+    void deleteAllByUserId_removesProjects() {
+        // given
+        when(repository.deleteByUserId(10L)).thenReturn(3L);
+
+        // when
+        service.deleteAllByUserId(10L);
+
+        // then
+        verify(repository).deleteByUserId(10L);
+    }
+
+    @Test
+    void deleteAllByUserId_noProjects_isNoOp() {
+        // given
+        when(repository.deleteByUserId(10L)).thenReturn(0L);
+
+        // when
+        service.deleteAllByUserId(10L);
+
+        // then
+        verify(repository).deleteByUserId(10L);
+    }
 }

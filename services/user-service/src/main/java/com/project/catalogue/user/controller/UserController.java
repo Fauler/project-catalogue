@@ -1,6 +1,7 @@
 package com.project.catalogue.user.controller;
 
 import com.project.catalogue.user.boundary.ApiResult;
+import com.project.catalogue.user.boundary.CredentialsRequest;
 import com.project.catalogue.user.boundary.UserRequest;
 import com.project.catalogue.user.boundary.UserResponse;
 import com.project.catalogue.user.boundary.UserService;
@@ -8,6 +9,8 @@ import com.project.catalogue.user.boundary.UserUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -47,12 +51,34 @@ public class UserController {
                 .body(ApiResult.success(HttpStatus.CREATED, response));
     }
 
+    @Operation(summary = "Validate user credentials")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Credentials valid"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid request body"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Invalid credentials")
+    })
+    @PostMapping("/validate")
+    public ResponseEntity<ApiResult<UserResponse>> validateCredentials(@Valid @RequestBody CredentialsRequest request) {
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK, userService.validateCredentials(request)));
+    }
+
     @Operation(summary = "List users with pagination")
     @GetMapping
     public ResponseEntity<ApiResult<Page<UserResponse>>> listUsers(
             @ParameterObject @PageableDefault(size = 10) Pageable pageable
     ) {
         return ResponseEntity.ok(ApiResult.success(HttpStatus.OK, userService.listUsers(pageable)));
+    }
+
+    @Operation(summary = "Search a user by email")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "User found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid email"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "User not found")
+    })
+    @GetMapping("/search")
+    public ResponseEntity<ApiResult<UserResponse>> searchUser(@RequestParam @Email @NotBlank String email) {
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK, userService.getUserByEmail(email)));
     }
 
     @Operation(summary = "Get user by id")
