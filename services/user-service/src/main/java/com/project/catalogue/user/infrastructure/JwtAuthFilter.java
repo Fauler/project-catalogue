@@ -4,6 +4,8 @@ import tools.jackson.databind.ObjectMapper;
 import com.project.catalogue.user.boundary.ApiResult;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import io.micrometer.tracing.BaggageInScope;
+import io.micrometer.tracing.Tracer;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,8 +24,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-import org.slf4j.MDC;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -31,6 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
+    private final Tracer tracer;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -45,16 +46,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
+        String clientId;
+        String role;
         try {
             Claims claims = jwtService.validateToken(token);
-            String clientId = claims.getSubject();
-            String role = claims.get("role", String.class);
-            MDC.put("clientId", clientId);
-            log.debug("JWT authenticated: clientId={}, role={}, {} {}",
-                    clientId, role, request.getMethod(), request.getRequestURI());
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    clientId, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            clientId = claims.getSubject();
+            role = claims.get("role", String.class);
         } catch (JwtException ex) {
             log.warn("Invalid JWT for {} {} - {}", request.getMethod(), request.getRequestURI(), ex.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -64,10 +61,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        try {
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                clientId, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        try (BaggageInScope ignored = tracer.createBaggageInScope("clientId", clientId)) {
+            log.debug("JWT authenticated: clientId={}, role={}, {} {}",
+                    clientId, role, request.getMethod(), request.getRequestURI());
             filterChain.doFilter(request, response);
-        } finally {
-            MDC.remove("clientId");
         }
     }
 }

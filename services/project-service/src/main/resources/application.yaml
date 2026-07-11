@@ -54,8 +54,22 @@ management:
       endpoint: ${MANAGEMENT_OTLP_TRACING_ENDPOINT:http://localhost:4318/v1/traces}
   tracing:
     enabled: true
+    propagation:
+      type: W3C
     sampling:
       probability: 1.0
+    baggage:
+      enabled: true
+      remote-fields:
+        - clientId
+      correlation:
+        enabled: true
+        fields:
+          - clientId
+  metrics:
+    export:
+      otlp:
+        enabled: false
 logging:
   level:
     com.project.catalogue: DEBUG

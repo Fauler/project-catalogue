@@ -31,6 +31,10 @@ management:
     enabled: true
     sampling:
       probability: 1.0
+  metrics:
+    export:
+      otlp:
+        enabled: false
 logging:
   level:
     com.project.catalogue: DEBUG
